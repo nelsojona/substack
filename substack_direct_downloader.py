@@ -156,7 +156,97 @@ def extract_json_data(html):
     return None
 
 
-def download_post(url, force=False):
+def download_image(session, url, image_dir, slug, verbose=False):
+    """Download an image and return its local path"""
+    try:
+        # Parse URL and extract filename
+        parsed_url = urllib.parse.urlparse(url)
+        path = parsed_url.path
+        original_filename = os.path.basename(path)
+        
+        # Extract extension or default to .jpg
+        _, ext = os.path.splitext(original_filename)
+        if not ext:
+            ext = '.jpg'
+        
+        # Generate a hash of the URL
+        url_hash = hashlib.md5(url.encode()).hexdigest()[:8]
+        
+        # Create a filename using slug and hash
+        if original_filename and len(original_filename) <= 50:
+            filename = f"{slug}_{url_hash}_{original_filename}"
+        else:
+            filename = f"{slug}_{url_hash}{ext}"
+        
+        # Clean the filename (remove invalid characters)
+        filename = re.sub(r'[\\/*?:"<>|]', '_', filename)
+        
+        # Create the full path
+        local_path = os.path.join(image_dir, filename)
+        
+        # Check if file already exists
+        if os.path.exists(local_path):
+            if verbose:
+                logger.debug(f"Image already exists: {local_path}")
+            return os.path.join("images", filename)
+        
+        # Apply throttling
+        throttle_request()
+        
+        # Download the image
+        response = session.get(url, timeout=30)
+        response.raise_for_status()
+        
+        # Save the image
+        with open(local_path, 'wb') as f:
+            f.write(response.content)
+        
+        if verbose:
+            logger.info(f"Downloaded image: {url} -> {local_path}")
+        
+        # Return the relative path from the markdown file to the image
+        return os.path.join("images", filename)
+    
+    except Exception as e:
+        logger.error(f"Error downloading image {url}: {e}")
+        return url  # Return the original URL if download fails
+
+
+def extract_image_urls(html_content, base_url=""):
+    """Extract image URLs from HTML content"""
+    image_urls = set()
+    
+    try:
+        # Parse HTML content
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # Find all img tags
+        img_tags = soup.find_all('img')
+        
+        # Extract image URLs
+        for img in img_tags:
+            src = img.get('src')
+            if src:
+                # Resolve relative URLs
+                if src.startswith('//'):
+                    src = 'https:' + src
+                elif src.startswith('/'):
+                    if base_url:
+                        src = urllib.parse.urljoin(base_url, src)
+                    else:
+                        continue  # Skip relative URLs if no base URL is provided
+                
+                # Filter out tiny images, data URIs, and tracking pixels
+                if not src.startswith('data:') and 'pixel' not in src.lower():
+                    image_urls.add(src)
+    
+    except Exception as e:
+        logger.error(f"Error extracting image URLs: {e}")
+    
+    return image_urls
+
+
+def download_post(url, force=False, download_images=True):
     """Download a post from Substack and save it as markdown"""
     logger.info(f"Downloading post: {url}")
     
@@ -286,6 +376,33 @@ def download_post(url, force=False):
         if "Subscribe to continue reading" in response.text or "This post is for paying subscribers" in response.text:
             logger.warning("Warning: This post may be paywalled and we might only have a preview")
         
+        # Process images if enabled
+        if download_images:
+            logger.info("Processing images...")
+            
+            # Get the base URL for resolving relative image URLs
+            base_url = f"https://{AUTHOR}.substack.com"
+            
+            # Extract image URLs from HTML
+            image_urls = extract_image_urls(content_html, base_url)
+            logger.info(f"Found {len(image_urls)} images to download")
+            
+            # Create a BeautifulSoup object from the content HTML
+            content_soup = BeautifulSoup(content_html, 'html.parser')
+            
+            # Process each image
+            for img in content_soup.find_all('img'):
+                src = img.get('src')
+                if src and src in image_urls:
+                    # Download the image and get local path
+                    local_path = download_image(session, src, IMAGE_DIR, slug, verbose=True)
+                    
+                    # Update the image src attribute
+                    img['src'] = local_path
+            
+            # Update content_html with the modified image paths
+            content_html = str(content_soup)
+        
         # Try to convert HTML to proper markdown
         logger.debug("Converting to markdown...")
         try:
@@ -337,7 +454,7 @@ original_url: "{url}"
         return False
 
 
-def download_all_posts(max_pages=10, force_refresh=False, max_posts=None):
+def download_all_posts(max_pages=10, force_refresh=False, max_posts=None, download_images=True):
     """Download all posts from the Substack site"""
     logger.info(f"Starting download of posts from {AUTHOR}.substack.com")
     
@@ -356,7 +473,7 @@ def download_all_posts(max_pages=10, force_refresh=False, max_posts=None):
     for i, url in enumerate(post_urls):
         logger.info(f"Processing post {i+1}/{len(post_urls)}: {url}")
         
-        result = download_post(url, force=force_refresh)
+        result = download_post(url, force=force_refresh, download_images=download_images)
         if result is True:
             successful += 1
         else:
@@ -389,6 +506,7 @@ if __name__ == "__main__":
     parser.add_argument('--force', action='store_true', help='Force refresh of already downloaded posts')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
     parser.add_argument('--url', help='Download a specific URL instead of scanning archive')
+    parser.add_argument('--no-images', action='store_true', help='Skip downloading images')
     
     args = parser.parse_args()
     
@@ -401,9 +519,13 @@ if __name__ == "__main__":
     if args.verbose:
         logger.setLevel(logging.DEBUG)
     
+    # Determine whether to download images
+    download_images = not args.no_images
+    
     # Download specific URL or all posts
     if args.url:
         logger.info(f"Downloading specific URL: {args.url}")
-        download_post(args.url, force=args.force)
+        download_post(args.url, force=args.force, download_images=download_images)
     else:
-        download_all_posts(max_pages=args.max_pages, force_refresh=args.force, max_posts=args.max_posts)
+        download_all_posts(max_pages=args.max_pages, force_refresh=args.force, 
+                          max_posts=args.max_posts, download_images=download_images)
