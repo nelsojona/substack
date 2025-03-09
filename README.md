@@ -215,6 +215,11 @@ python substack_to_md.py --author mattstoller --email your-email@example.com --p
 | `--use-post-objects` | Use enhanced mode with direct Post object methods | No | False |
 | `--url` | Process a single post by URL | No | - |
 | `--slug` | Process a single post by slug | No | - |
+| `--async-mode` | Use async/aiohttp for downloading | No | False |
+| `--processes` | Number of processes to use for multiprocessing | No | 2 |
+| `--min-delay` | Minimum delay between requests in seconds | No | 0.5 |
+| `--max-delay` | Maximum delay between requests in seconds | No | 5.0 |
+| `--incremental` | Only download new or updated content | No | False |
 
 ### Authentication Arguments
 
@@ -250,6 +255,9 @@ python substack_to_md.py --author mattstoller --email your-email@example.com --p
 - Includes caching for improved performance
 - Supports authenticated access to private/subscriber-only content
 - Downloads and embeds images locally for offline viewing
+- Utilizes optimized performance with async, multiprocessing, and adaptive throttling
+- Offers incremental sync to efficiently update content
+- Implements robust error handling and recovery mechanisms
 
 ## Enhanced Mode
 
@@ -334,14 +342,25 @@ Planned future enhancements include:
 
 - Support for fetching post comments
 - Newsletter metadata extraction
-- Improved authenticated access to private content
-- Concurrent fetching for improved performance
 - Support for exporting subscriber-only content
 - Custom Markdown templates
 - Batch processing for multiple authors
 - Filtering posts by date range
 - Export to other formats (e.g., PDF, HTML)
 - Integration with Oxylabs for proxying requests to avoid rate limiting
+
+## Performance Optimizations
+
+The tool includes several performance optimizations:
+
+- **Async/Concurrent Requests**: Uses asyncio/aiohttp for non-blocking concurrent downloads
+- **Multiprocessing**: Parallel processing of posts with configurable process count
+- **Caching**: Implements caching layer to speed up repeated fetches and reduce API load
+- **Adaptive Throttling**: Dynamically adjusts delays based on response times and rate limits
+- **Batch Image Processing**: Downloads images in parallel with configurable batch sizes
+- **Connection Pooling**: Reuses connections for better performance
+- **Incremental Sync**: Only downloads new or updated content
+- **Database Optimizations**: Uses bulk operations and indexing for faster metadata retrieval
 
 ## Contributing
 

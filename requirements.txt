@@ -6,3 +6,23 @@ python-dotenv>=0.20.0
 selenium>=4.1.0
 pyppeteer>=1.0.2
 beautifulsoup4>=4.10.0
+aiohttp>=3.8.0
+asyncio>=3.4.3
+multiprocessing-logging>=0.3.1
+
+# Performance optimization dependencies
+aiosignal>=1.3.1
+async-timeout>=4.0.3
+attrs>=23.1.0
+bs4>=0.0.1
+certifi>=2023.7.22
+charset-normalizer>=3.2.0
+frozenlist>=1.4.0
+idna>=3.4
+markdown>=3.4.4
+multidict>=6.0.4
+soupsieve>=2.5
+urllib3>=2.0.4
+yarl>=1.9.2
+redis>=4.5.5
+sqlalchemy>=2.0.20

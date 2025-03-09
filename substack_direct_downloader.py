@@ -61,15 +61,23 @@ def create_session():
     return session
 
 
-def find_post_urls(max_pages=10):
-    """Find post URLs by scraping the Substack archive pages"""
+def find_post_urls(max_pages=None):
+    """Find post URLs by scraping the Substack archive pages
+    
+    Args:
+        max_pages: Optional limit to number of pages to scan. If None, scans all pages.
+    """
     logger.info(f"Scraping archive pages for {AUTHOR}.substack.com")
     
     # Create a session with random user agent
     session = create_session()
     
     post_urls = []
-    for page in range(1, max_pages + 1):
+    page = 1
+    reached_end = False
+    
+    # Continue until we reach the end or hit the max_pages limit
+    while not reached_end and (max_pages is None or page <= max_pages):
         # Construct URL for the current page
         url = f"https://{AUTHOR}.substack.com/archive?sort=new&page={page}"
         logger.info(f"Scraping archive page {page}: {url}")
@@ -120,10 +128,14 @@ def find_post_urls(max_pages=10):
             # Check if we reached the end
             if "No posts to see here" in response.text or "There are no more posts" in response.text:
                 logger.info(f"Reached the end of archive at page {page}")
+                reached_end = True
                 break
             
             # Success!
             logger.info(f"Successfully processed page {page}, total URLs found: {len(post_urls)}")
+            
+            # Move to the next page
+            page += 1
             
         except Exception as e:
             logger.error(f"Error processing page {page}: {e}")
@@ -454,8 +466,15 @@ original_url: "{url}"
         return False
 
 
-def download_all_posts(max_pages=10, force_refresh=False, max_posts=None, download_images=True):
-    """Download all posts from the Substack site"""
+def download_all_posts(max_pages=None, force_refresh=False, max_posts=None, download_images=True):
+    """Download all posts from the Substack site
+    
+    Args:
+        max_pages: Optional limit to number of pages to scan. If None, scans all pages.
+        force_refresh: Whether to re-download already downloaded posts
+        max_posts: Maximum number of posts to download
+        download_images: Whether to download images in posts
+    """
     logger.info(f"Starting download of posts from {AUTHOR}.substack.com")
     
     # Get post URLs
@@ -501,7 +520,7 @@ if __name__ == "__main__":
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Download posts from Substack')
     parser.add_argument('--author', default=AUTHOR, help=f'Substack author identifier (default: {AUTHOR})')
-    parser.add_argument('--max-pages', type=int, default=10, help='Maximum number of archive pages to scan (default: 10)')
+    parser.add_argument('--max-pages', type=int, help='Maximum number of archive pages to scan (default: scan all pages)')
     parser.add_argument('--max-posts', type=int, help='Maximum number of posts to download')
     parser.add_argument('--force', action='store_true', help='Force refresh of already downloaded posts')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
