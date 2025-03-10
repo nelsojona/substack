@@ -153,13 +153,32 @@ class ConnectionPool:
                 headers["User-Agent"] = self.get_random_user_agent()
             
             # Create the session
-            session = ClientSession(
-                connector=connector,
-                headers=headers,
-                cookies=cookies,
-                timeout=ClientTimeout(total=timeout or self.timeout),
-                proxy=proxy
-            )
+            # Handle differences in aiohttp versions (older versions don't accept 'proxy' as a parameter)
+            try:
+                # First try with proxy parameter (newer aiohttp versions)
+                if proxy:
+                    session = ClientSession(
+                        connector=connector,
+                        headers=headers,
+                        cookies=cookies,
+                        timeout=ClientTimeout(total=timeout or self.timeout),
+                        proxy=proxy
+                    )
+                else:
+                    session = ClientSession(
+                        connector=connector,
+                        headers=headers,
+                        cookies=cookies,
+                        timeout=ClientTimeout(total=timeout or self.timeout)
+                    )
+            except TypeError:
+                # Fallback for older aiohttp versions that don't support 'proxy' parameter
+                session = ClientSession(
+                    connector=connector,
+                    headers=headers,
+                    cookies=cookies,
+                    timeout=ClientTimeout(total=timeout or self.timeout)
+                )
             
             # Store the session
             self.sessions[name] = session
