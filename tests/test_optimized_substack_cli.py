@@ -107,7 +107,7 @@ class TestOptimizedSubstackCLI(unittest.IsolatedAsyncioTestCase):
         )
         
         # Check that the authentication token was set
-        mock_downloader.set_auth_token.assert_called_once_with("test_token")
+        mock_downloader.set_auth_token.assert_awaited_once_with("test_token")
         
         # Check that download_all_posts was called with the correct arguments
         mock_downloader.download_all_posts.assert_called_once_with(

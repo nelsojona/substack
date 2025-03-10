@@ -45,6 +45,9 @@ logs/
 output/
 scripts/trade_companion_checkpoint.json
 *.checkpoint.json
+*.html
+*.json
+tradecompanion_posts.txt
 
 # Jupyter Notebook
 .ipynb_checkpoints

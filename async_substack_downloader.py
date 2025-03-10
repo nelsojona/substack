@@ -98,7 +98,7 @@ class AsyncSubstackDownloader:
         if self.session:
             await self.session.close()
     
-    def set_auth_token(self, token: str) -> None:
+    async def set_auth_token(self, token: str) -> None:
         """
         Set the authentication token for accessing private content.
         
@@ -116,7 +116,7 @@ class AsyncSubstackDownloader:
             }
             
             # Update the session's cookie jar
-            self.session.cookie_jar.update_cookies(cookies)
+            await self.session.cookie_jar.update_cookies(cookies)
     
     async def _fetch_url(self, url: str, retries: int = 3) -> Optional[str]:
         """
@@ -262,18 +262,152 @@ class AsyncSubstackDownloader:
         
         return post_urls
     
-    async def download_post(self, url: str, force_refresh: bool = False, download_images: bool = False) -> bool:
+    async def direct_fetch(self, url: str) -> Optional[Dict[str, Any]]:
+        """
+        Direct fetch method to reliably get full post content.
+        
+        Args:
+            url (str): Post URL
+        
+        Returns:
+            Optional[Dict[str, Any]]: Dictionary with post data or None if failed
+        """
+        if not self.auth_token:
+            logger.warning("No authentication token provided. Direct fetch may not work for premium content")
+        
+        try:
+            logger.info(f"Using direct fetch method for {url}...")
+            
+            # Extract author from URL if not set
+            url_parts = urlparse(url)
+            author = self.author
+            
+            # Headers that mimic a real browser
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+                "Origin": "https://substack.com",
+                "Referer": "https://substack.com/",
+                "sec-ch-ua": '"Not(A:Brand";v="99", "Google Chrome";v="133", "Chromium";v="133"',
+                "sec-ch-ua-platform": '"macOS"',
+                "sec-fetch-site": "same-site",
+                "sec-fetch-dest": "document"
+            }
+            
+            # Cookies for authentication
+            token = self.auth_token
+            cookies = {
+                "substack.sid": token,
+                "substack-sid": token,
+                "substack.authpub": author,
+                "substack.lli": "1"
+            }
+            
+            # Create a fresh session to avoid any cookie/header issues
+            async with aiohttp.ClientSession(headers=headers) as fresh_session:
+                # First visit the main page to establish cookies
+                main_url = f"https://{author}.substack.com/"
+                
+                async with fresh_session.get(main_url, cookies=cookies) as response:
+                    if response.status == 200:
+                        logger.info(f"Successfully visited main site for {author}")
+                    else:
+                        logger.warning(f"Failed to visit main site: {response.status}")
+                
+                # Now visit the actual post URL
+                async with fresh_session.get(url, cookies=cookies) as response:
+                    if response.status == 200:
+                        html = await response.text()
+                        logger.info(f"Successfully fetched post with direct method (length: {len(html)})")
+                        
+                        # Extract metadata
+                        soup = BeautifulSoup(html, 'html.parser')
+                        
+                        # Extract title
+                        title_elem = soup.select_one('h1.post-title')
+                        title = title_elem.text.strip() if title_elem else "Untitled Post"
+                        
+                        # Extract date (for simple implementation we'll just use today's date)
+                        from datetime import datetime
+                        formatted_date = datetime.now().strftime('%Y-%m-%d')
+                        
+                        # Extract content - first try BeautifulSoup
+                        body_markup = soup.select_one('div.body.markup')
+                        
+                        if body_markup:
+                            content_html = str(body_markup)
+                            logger.info(f"Found content div with BeautifulSoup (length: {len(content_html)})")
+                        else:
+                            # Try regex as fallback
+                            logger.info("Trying regex fallback for content extraction")
+                            match = re.search(r'<div class="body markup" dir="auto">(.*?)</div>\s*</div>\s*<div', html, re.DOTALL)
+                            if match:
+                                content_html = f'<div class="body markup" dir="auto">{match.group(1)}</div>'
+                                logger.info(f"Found content with regex (length: {len(content_html)})")
+                            else:
+                                content_elem = soup.select_one("div.body")
+                                if content_elem:
+                                    content_html = str(content_elem)
+                                    logger.info(f"Found content using div.body selector (length: {len(content_html)})")
+                                else:
+                                    logger.error("Couldn't extract content with any method")
+                                    content_html = "<p>Failed to extract content</p>"
+                        
+                        # Return the post data dictionary
+                        return {
+                            "title": title,
+                            "date": formatted_date,
+                            "url": url,
+                            "content_html": content_html,
+                            "html": html
+                        }
+                    else:
+                        logger.error(f"Failed to fetch post with direct method: {response.status}")
+                        return None
+        except Exception as e:
+            logger.error(f"Error in direct_fetch: {e}")
+            return None
+            
+    async def download_post(self, url: str, force: bool = False, download_images: bool = False, use_direct: bool = False) -> bool:
         """
         Download a post and save it as Markdown.
         
         Args:
             url (str): Post URL.
-            force_refresh (bool, optional): Whether to force refresh the post. Defaults to False.
+            force (bool, optional): Whether to force refresh the post. Defaults to False.
             download_images (bool, optional): Whether to download images. Defaults to False.
-        
+            use_direct (bool, optional): Use direct fetch method. Defaults to False.
+            
         Returns:
             bool: True if the post was downloaded successfully, False otherwise.
         """
+        # Get content using direct method if requested
+        if use_direct:
+            data = await self.direct_fetch(url)
+            if data:
+                title = data["title"]
+                content_html = data["content_html"]
+                
+                # Convert HTML to Markdown
+                markdown = MarkdownConverter.convert_html_to_markdown(content_html)
+                
+                # Extract slug from URL
+                slug_match = re.search(r"/p/([^/]+)", url)
+                if not slug_match:
+                    logger.error(f"Could not extract slug from {url}")
+                    return False
+                
+                slug = slug_match.group(1)
+                
+                # Save the Markdown file with date prefix
+                markdown_file = os.path.join(self.output_dir, f"{data['date']}_{slug}.md")
+                
+                with open(markdown_file, "w", encoding="utf-8") as f:
+                    f.write(markdown)
+                
+                return True
+        
+        # Otherwise use the standard method
         # Fetch the post page
         html = await self._fetch_url(url)
         
@@ -321,7 +455,8 @@ class AsyncSubstackDownloader:
         max_pages: int = 1,
         force_refresh: bool = False,
         max_posts: Optional[int] = None,
-        download_images: bool = False
+        download_images: bool = False,
+        use_direct: bool = False
     ) -> Tuple[int, int, int]:
         """
         Download all posts for the author.
@@ -331,6 +466,7 @@ class AsyncSubstackDownloader:
             force_refresh (bool, optional): Whether to force refresh posts. Defaults to False.
             max_posts (Optional[int], optional): Maximum number of posts to download. Defaults to None.
             download_images (bool, optional): Whether to download images. Defaults to False.
+            use_direct (bool, optional): Use direct fetch method. Defaults to False.
         
         Returns:
             Tuple[int, int, int]: Tuple of (successful, failed, skipped) counts.
@@ -371,8 +507,9 @@ class AsyncSubstackDownloader:
             # Create a task for downloading the post
             tasks.append(self.download_post(
                 url=url,
-                force_refresh=force_refresh,
-                download_images=download_images
+                force=force_refresh,
+                download_images=download_images,
+                use_direct=use_direct
             ))
         
         # Wait for all tasks to complete

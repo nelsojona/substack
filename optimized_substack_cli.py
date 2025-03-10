@@ -158,7 +158,7 @@ class OptimizedSubstackCLI:
             # Set the authentication token if provided
             if auth_token:
                 logger.info("Using authentication token")
-                downloader.set_auth_token(auth_token)
+                await downloader.set_auth_token(auth_token)
             
             # Check if we should use incremental sync
             if self.args.incremental:

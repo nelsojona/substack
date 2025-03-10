@@ -101,11 +101,16 @@ class IncrementalSync:
         Check if a post has been synced.
         
         Args:
-            post_id (str): Post ID.
+            post_id (str): Post ID or URL. If URL, extracts the post ID.
         
         Returns:
             bool: True if the post has been synced, False otherwise.
         """
+        # Handle both full URLs and post IDs
+        if '/' in post_id:
+            # Extract post ID from URL
+            post_id = post_id.split('/')[-1]
+            
         return post_id in self.synced_posts
     
     def mark_post_synced(self, post_id: str) -> None:
@@ -113,8 +118,13 @@ class IncrementalSync:
         Mark a post as synced.
         
         Args:
-            post_id (str): Post ID.
+            post_id (str): Post ID or URL. If URL, extracts the post ID.
         """
+        # Handle both full URLs and post IDs
+        if '/' in post_id:
+            # Extract post ID from URL
+            post_id = post_id.split('/')[-1]
+            
         self.synced_posts.add(post_id)
     
     def filter_new_posts(self, posts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -160,6 +170,7 @@ class IncrementalSync:
         """Update the last sync time to the current time."""
         self.last_sync = int(time.time())
         self._save_state()
+        logger.info(f"Updated sync time for {self.author} to {datetime.fromtimestamp(self.last_sync).isoformat()}")
     
     def reset_sync_state(self) -> None:
         """Reset the sync state."""
@@ -218,7 +229,12 @@ class IncrementalSyncManager:
             IncrementalSync: IncrementalSync instance.
         """
         if author not in self.syncs:
+            logger.info(f"Creating new incremental sync for {author}")
             self.syncs[author] = IncrementalSync(author, self.cache_dir)
+            # Ensure we have a valid sync state file
+            self.syncs[author]._save_state()
+        else:
+            logger.info(f"Using existing incremental sync for {author}")
         
         return self.syncs[author]
     

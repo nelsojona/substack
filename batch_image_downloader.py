@@ -66,8 +66,13 @@ class BatchImageDownloader:
     
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager exit."""
+        await self.close()
+        
+    async def close(self):
+        """Close the HTTP session if it exists."""
         if self.session:
             await self.session.close()
+            self.session = None
     
     async def extract_image_urls(self, html_content: str, base_url: str = "") -> Set[str]:
         """

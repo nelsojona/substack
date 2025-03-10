@@ -78,30 +78,48 @@ The Substack to Markdown tool provides a comprehensive command-line interface (C
 
 ### Basic Usage
 
-The most basic command requires only the author's identifier:
+There are multiple scripts available with different capabilities:
+
+#### 1. Standard Converter
 
 ```bash
 python substack_to_md.py --author <author_identifier>
 ```
 
-Where `<author_identifier>` is the Substack author's username or subdomain (e.g., "mattstoller" for "mattstoller.substack.com").
+#### 2. Direct Downloader (Recommended)
+
+The direct downloader offers better performance and uses sitemap.xml for more reliable post discovery:
+
+```bash
+python substack_direct_downloader.py --author <author_identifier>
+```
+
+#### 3. Optimized CLI
+
+```bash
+python optimized_substack_cli.py download --author <author_identifier>
+```
+
+Where `<author_identifier>` is the Substack author's username or subdomain (e.g., "big" for "big.substack.com" which is Matt Stoller's BIG newsletter).
 
 ### Command Structure
 
-The general command structure is:
+The general command structure for the direct downloader:
 
 ```bash
-python substack_to_md.py --author <author> [options]
+python substack_direct_downloader.py --author <author> [options]
 ```
 
 ### Common Usage Patterns
 
+The examples below use the recommended `substack_direct_downloader.py` script.
+
 #### 1. Basic Fetching
 
-Fetch all posts from a specific author and save them to the current directory:
+Fetch all posts from a specific author and save them to the default output directory:
 
 ```bash
-python substack_to_md.py --author mattstoller
+python substack_direct_downloader.py --author big
 ```
 
 #### 2. Specifying Output Location
@@ -109,7 +127,7 @@ python substack_to_md.py --author mattstoller
 Save posts to a specific directory:
 
 ```bash
-python substack_to_md.py --author mattstoller --output ./my_posts
+python substack_direct_downloader.py --author big --output ./my_posts
 ```
 
 #### 3. Limiting Post Count
@@ -117,7 +135,7 @@ python substack_to_md.py --author mattstoller --output ./my_posts
 Fetch only the 5 most recent posts:
 
 ```bash
-python substack_to_md.py --author mattstoller --limit 5
+python substack_direct_downloader.py --author big --max-posts 5
 ```
 
 #### 4. Detailed Output
@@ -125,7 +143,7 @@ python substack_to_md.py --author mattstoller --limit 5
 Enable verbose mode to see detailed progress information:
 
 ```bash
-python substack_to_md.py --author mattstoller --verbose
+python substack_direct_downloader.py --author big --verbose
 ```
 
 #### 5. Single Post Processing
@@ -133,78 +151,66 @@ python substack_to_md.py --author mattstoller --verbose
 Process a specific post by its URL:
 
 ```bash
-python substack_to_md.py --author mattstoller --url https://mattstoller.substack.com/p/how-to-get-rich-sabotaging-nuclear
+python substack_direct_downloader.py --author big --url https://big.substack.com/p/how-to-get-rich-sabotaging-nuclear
 ```
 
-Or by its slug:
+#### 6. Using Sitemap for Efficient Post Discovery
+
+By default, the direct downloader uses sitemap.xml for efficient post discovery. You can disable this feature if needed:
 
 ```bash
-python substack_to_md.py --author mattstoller --slug how-to-get-rich-sabotaging-nuclear
+python substack_direct_downloader.py --author big --no-sitemap
 ```
 
-#### 6. Enhanced Mode
+#### 7. Controlling Concurrency
 
-Use direct Post object methods for better integration with the Substack API:
+Adjust the number of concurrent downloads for better performance:
 
 ```bash
-python substack_to_md.py --author mattstoller --use-post-objects
+python substack_direct_downloader.py --author big --max-concurrency 10 --max-image-concurrency 20
 ```
 
-### Downloading Images
+#### 8. Force Refresh
 
-Download and embed images locally:
+Force refresh existing posts:
 
 ```bash
-python substack_to_md.py --author mattstoller --download-images
+python substack_direct_downloader.py --author big --force
 ```
 
-Specify a custom directory for downloaded images:
+### Handling Images
+
+By default, the direct downloader saves images locally. You can disable this:
 
 ```bash
-python substack_to_md.py --author mattstoller --download-images --image-dir ./images/mattstoller
-```
-
-Use a base URL for image references (useful for web publishing):
-
-```bash
-python substack_to_md.py --author mattstoller --download-images --image-base-url https://example.com/images
+python substack_direct_downloader.py --author big --no-images
 ```
 
 Control the number of concurrent image downloads:
 
 ```bash
-python substack_to_md.py --author mattstoller --download-images --max-image-workers 8
+python substack_direct_downloader.py --author big --max-image-concurrency 15
 ```
 
 ### Accessing Private Content
 
-To access private/subscriber-only content, you need to authenticate with Substack. The tool supports several authentication methods:
-
-#### Using Email and Password
+To access private/subscriber-only content with the direct downloader, you can use an authentication token:
 
 ```bash
-python substack_to_md.py --author mattstoller --email your-email@example.com --password your-password --private --url https://mattstoller.substack.com/p/private-post-slug
+python substack_direct_downloader.py --author big --token your-auth-token --url https://big.substack.com/p/private-post-slug
 ```
 
-#### Using Authentication Token
+To obtain a Substack authentication token, you can use the provided script:
 
 ```bash
-python substack_to_md.py --author mattstoller --token your-auth-token --private --url https://mattstoller.substack.com/p/private-post-slug
+python scripts/get_substack_token.py
 ```
 
-#### Using Cookies File
-
-```bash
-python substack_to_md.py --author mattstoller --cookies-file path/to/cookies.txt --private --url https://mattstoller.substack.com/p/private-post-slug
-```
-
-#### Saving Cookies for Future Use
-
-```bash
-python substack_to_md.py --author mattstoller --email your-email@example.com --password your-password --save-cookies path/to/cookies.txt --private --url https://mattstoller.substack.com/p/private-post-slug
-```
+This will guide you through the process of obtaining an authentication token from your browser session.
 
 ### Command-line Arguments
+
+#### For substack_to_md.py
 
 | Argument | Description | Required | Default |
 |----------|-------------|----------|---------|
@@ -220,6 +226,29 @@ python substack_to_md.py --author mattstoller --email your-email@example.com --p
 | `--min-delay` | Minimum delay between requests in seconds | No | 0.5 |
 | `--max-delay` | Maximum delay between requests in seconds | No | 5.0 |
 | `--incremental` | Only download new or updated content | No | False |
+
+#### For substack_direct_downloader.py (Recommended)
+
+| Argument | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `--author` | Substack author identifier | No | "tradecompanion" |
+| `--output` | Output directory | No | "output" |
+| `--max-pages` | Maximum number of archive pages to scan | No | Scan all pages |
+| `--max-posts` | Maximum number of posts to download | No | All posts |
+| `--force` | Force refresh of already downloaded posts | No | False |
+| `--verbose` | Enable verbose output | No | False |
+| `--url` | Download a specific URL instead of scanning archive | No | - |
+| `--no-images` | Skip downloading images | No | False |
+| `--min-delay` | Minimum delay between requests in seconds | No | 0.5 |
+| `--max-delay` | Maximum delay between requests in seconds | No | 5.0 |
+| `--max-concurrency` | Maximum concurrent requests | No | 5 |
+| `--max-image-concurrency` | Maximum concurrent image downloads | No | 10 |
+| `--token` | Substack authentication token for private content | No | - |
+| `--incremental` | Only download new or updated content | No | False |
+| `--async-mode` | Use async/aiohttp for downloading | No | True |
+| `--clear-cache` | Clear cache before starting | No | False |
+| `--use-sitemap` | Use sitemap.xml for post discovery | No | True |
+| `--no-sitemap` | Skip using sitemap.xml for post discovery | No | False |
 
 ### Authentication Arguments
 
@@ -351,13 +380,13 @@ Planned future enhancements include:
 
 ## Performance Optimizations
 
-The tool includes several performance optimizations:
+The direct downloader script (`substack_direct_downloader.py`) includes several performance optimizations:
 
+- **Sitemap-based Discovery**: Uses sitemap.xml to efficiently find all posts
 - **Async/Concurrent Requests**: Uses asyncio/aiohttp for non-blocking concurrent downloads
-- **Multiprocessing**: Parallel processing of posts with configurable process count
 - **Caching**: Implements caching layer to speed up repeated fetches and reduce API load
 - **Adaptive Throttling**: Dynamically adjusts delays based on response times and rate limits
-- **Batch Image Processing**: Downloads images in parallel with configurable batch sizes
+- **Parallel Image Processing**: Downloads images concurrently with configurable limits
 - **Connection Pooling**: Reuses connections for better performance
 - **Incremental Sync**: Only downloads new or updated content
 - **Database Optimizations**: Uses bulk operations and indexing for faster metadata retrieval
