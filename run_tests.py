@@ -55,7 +55,7 @@ def run_tests(test_modules=None, verbose=False):
             for name in dir(module):
                 obj = getattr(module, name)
                 if isinstance(obj, type) and issubclass(obj, unittest.TestCase) and obj != unittest.TestCase:
-                    test_suite.addTest(unittest.makeSuite(obj))
+                    test_suite.addTest(unittest.defaultTestLoader.loadTestsFromTestCase(obj))
         
         except ImportError as e:
             logger.error(f"Error importing test module {module_name}: {e}")

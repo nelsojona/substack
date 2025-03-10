@@ -192,6 +192,16 @@ Control the number of concurrent image downloads:
 python substack_direct_downloader.py --author big --max-image-concurrency 15
 ```
 
+### Including Comments
+
+To include post comments in the Markdown output:
+
+```bash
+python substack_direct_downloader.py --author big --include-comments
+```
+
+This will add a "Comments" section at the end of each post with all comments and replies properly formatted.
+
 ### Accessing Private Content
 
 To access private/subscriber-only content with the direct downloader, you can use an authentication token:
@@ -249,6 +259,7 @@ This will guide you through the process of obtaining an authentication token fro
 | `--clear-cache` | Clear cache before starting | No | False |
 | `--use-sitemap` | Use sitemap.xml for post discovery | No | True |
 | `--no-sitemap` | Skip using sitemap.xml for post discovery | No | False |
+| `--include-comments` | Include post comments in the output | No | False |
 
 ### Authentication Arguments
 
@@ -284,6 +295,8 @@ This will guide you through the process of obtaining an authentication token fro
 - Includes caching for improved performance
 - Supports authenticated access to private/subscriber-only content
 - Downloads and embeds images locally for offline viewing
+- Extracts and includes post comments with proper threading
+- Extracts newsletter metadata for better organization
 - Utilizes optimized performance with async, multiprocessing, and adaptive throttling
 - Offers incremental sync to efficiently update content
 - Implements robust error handling and recovery mechanisms
@@ -369,14 +382,13 @@ The tool includes robust error handling for:
 
 Planned future enhancements include:
 
-- Support for fetching post comments
-- Newsletter metadata extraction
-- Support for exporting subscriber-only content
 - Custom Markdown templates
 - Batch processing for multiple authors
 - Filtering posts by date range
 - Export to other formats (e.g., PDF, HTML)
 - Integration with Oxylabs for proxying requests to avoid rate limiting
+- Utility functions for working with Substack API objects
+- Enhanced caching mechanism for API responses
 
 ## Performance Optimizations
 
