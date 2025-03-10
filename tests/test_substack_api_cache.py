@@ -13,7 +13,7 @@ from unittest.mock import patch, MagicMock
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from substack_api_cache import SubstackApiCache
+from src.utils.substack_api_cache import SubstackApiCache
 
 
 class TestSubstackApiCache(unittest.TestCase):

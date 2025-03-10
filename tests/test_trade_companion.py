@@ -18,10 +18,10 @@ import time
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import substack_to_md
-from substack_fetcher import SubstackFetcher
-from markdown_converter import MarkdownConverter
-from env_loader import load_env_vars
+from src.core import substack_to_md
+from src.core.substack_fetcher import SubstackFetcher
+from src.utils.markdown_converter import MarkdownConverter
+from src.utils.env_loader import load_env_vars
 
 
 class TestTradeCompanion(unittest.TestCase):
@@ -65,8 +65,8 @@ class TestTradeCompanion(unittest.TestCase):
         # to keep the downloaded files for inspection
         pass
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_download_trade_companion(self, mock_converter_class, mock_fetcher_class):
         """Test downloading all posts from Trade Companion Substack with images."""
         # Set up mocks
@@ -80,7 +80,7 @@ class TestTradeCompanion(unittest.TestCase):
         ]
         
         # Create a mock for parse_arguments
-        with patch('substack_to_md.parse_arguments') as mock_parse_args:
+        with patch('src.core.substack_to_md.parse_arguments') as mock_parse_args:
             # Set up the mock to return the desired arguments
             mock_args = MagicMock()
             mock_args.author = 'tradecompanion'
@@ -139,7 +139,7 @@ class TestTradeCompanion(unittest.TestCase):
                     self.assertIn('This is', content)
                     self.assertIn('![test image](images/', content)
 
-    @patch('substack_fetcher.Substack')
+    @patch('src.core.substack_fetcher.Substack')
     def test_fetch_posts_real_connection(self, mock_substack_class):
         """Test fetching posts from Trade Companion with a real connection (limited)."""
         # This test attempts to make a real connection to the Substack API
@@ -160,8 +160,8 @@ class TestTradeCompanion(unittest.TestCase):
         self.assertEqual(posts[0]['title'], 'Trade Companion Post 1')
         self.assertEqual(posts[1]['title'], 'Trade Companion Post 2')
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_download_with_image_options(self, mock_converter_class, mock_fetcher_class):
         """Test downloading posts with custom image options."""
         # Set up mocks
@@ -175,7 +175,7 @@ class TestTradeCompanion(unittest.TestCase):
         ]
         
         # Create a mock for parse_arguments
-        with patch('substack_to_md.parse_arguments') as mock_parse_args:
+        with patch('src.core.substack_to_md.parse_arguments') as mock_parse_args:
             # Set up the mock to return the desired arguments with custom image options
             mock_args = MagicMock()
             mock_args.author = 'tradecompanion'
@@ -227,8 +227,8 @@ class TestTradeCompanion(unittest.TestCase):
                     content = f.read()
                     self.assertIn('custom-images/', content)
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_download_all_posts(self, mock_converter_class, mock_fetcher_class):
         """Test downloading all posts from Trade Companion Substack without limit."""
         # Set up mocks with more posts to simulate downloading all posts
@@ -257,7 +257,7 @@ class TestTradeCompanion(unittest.TestCase):
         ]
         
         # Create a mock for parse_arguments
-        with patch('substack_to_md.parse_arguments') as mock_parse_args:
+        with patch('src.core.substack_to_md.parse_arguments') as mock_parse_args:
             # Set up the mock to return the desired arguments
             mock_args = MagicMock()
             mock_args.author = 'tradecompanion'
@@ -311,7 +311,7 @@ class TestTradeCompanion(unittest.TestCase):
                     self.assertIn(f'# Trade Companion Post {i}', content)
                     self.assertIn('![test image](images/', content)
 
-    @patch('substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.SubstackFetcher')
     def test_error_handling(self, mock_fetcher_class):
         """Test error handling when downloading posts."""
         # Set up mock to raise an exception
@@ -319,7 +319,7 @@ class TestTradeCompanion(unittest.TestCase):
         mock_fetcher.fetch_posts.side_effect = ConnectionError("Failed to connect to Substack API")
         
         # Create a mock for parse_arguments
-        with patch('substack_to_md.parse_arguments') as mock_parse_args:
+        with patch('src.core.substack_to_md.parse_arguments') as mock_parse_args:
             # Set up the mock to return the desired arguments
             mock_args = MagicMock()
             mock_args.author = 'tradecompanion'

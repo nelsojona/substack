@@ -7,7 +7,7 @@ import tempfile
 from unittest.mock import patch, MagicMock, AsyncMock
 
 # Import the module to test
-from substack_direct_downloader import SubstackDirectDownloader
+from src.core.substack_direct_downloader import SubstackDirectDownloader
 
 class TestSitemapIntegration(unittest.TestCase):
     """Test cases for the sitemap integration in SubstackDirectDownloader."""
@@ -22,12 +22,12 @@ class TestSitemapIntegration(unittest.TestCase):
         # Remove temp directory
         shutil.rmtree(self.test_dir)
     
-    @patch('substack_direct_downloader.ConnectionPool')
-    @patch('substack_direct_downloader.CacheManager')
-    @patch('substack_direct_downloader.DatabaseManager')
-    @patch('substack_direct_downloader.IncrementalSyncManager')
-    @patch('substack_direct_downloader.BatchImageDownloader')
-    @patch('substack_direct_downloader.AsyncAdaptiveThrottler')
+    @patch('src.core.substack_direct_downloader.ConnectionPool')
+    @patch('src.core.substack_direct_downloader.CacheManager')
+    @patch('src.core.substack_direct_downloader.DatabaseManager')
+    @patch('src.core.substack_direct_downloader.IncrementalSyncManager')
+    @patch('src.core.substack_direct_downloader.BatchImageDownloader')
+    @patch('src.core.substack_direct_downloader.AsyncAdaptiveThrottler')
     def test_init_with_sitemap(self, mock_throttler, mock_image_downloader, mock_sync_manager, 
                   mock_db, mock_cache, mock_conn_pool):
         """Test constructor with sitemap settings."""
@@ -60,13 +60,13 @@ class TestSitemapIntegration(unittest.TestCase):
         self.assertFalse(downloader_no_sitemap.use_sitemap, "use_sitemap should be False when set")
     
     @patch('aiohttp.ClientSession')
-    @patch('substack_direct_downloader.SubstackDirectDownloader._fetch_url')
-    @patch('substack_direct_downloader.ConnectionPool')
-    @patch('substack_direct_downloader.CacheManager')
-    @patch('substack_direct_downloader.DatabaseManager')
-    @patch('substack_direct_downloader.IncrementalSyncManager')
-    @patch('substack_direct_downloader.BatchImageDownloader')
-    @patch('substack_direct_downloader.AsyncAdaptiveThrottler')
+    @patch('src.core.substack_direct_downloader.SubstackDirectDownloader._fetch_url')
+    @patch('src.core.substack_direct_downloader.ConnectionPool')
+    @patch('src.core.substack_direct_downloader.CacheManager')
+    @patch('src.core.substack_direct_downloader.DatabaseManager')
+    @patch('src.core.substack_direct_downloader.IncrementalSyncManager')
+    @patch('src.core.substack_direct_downloader.BatchImageDownloader')
+    @patch('src.core.substack_direct_downloader.AsyncAdaptiveThrottler')
     def test_find_post_urls_with_sitemap(self, mock_throttler, mock_image_downloader, mock_sync_manager, 
                                      mock_db, mock_cache, mock_conn_pool, mock_fetch_url, mock_session):
         """Test the find_post_urls method with sitemap enabled."""
@@ -146,13 +146,13 @@ class TestSitemapIntegration(unittest.TestCase):
             asyncio.set_event_loop(None)
     
     @patch('aiohttp.ClientSession')
-    @patch('substack_direct_downloader.SubstackDirectDownloader._fetch_url')
-    @patch('substack_direct_downloader.ConnectionPool')
-    @patch('substack_direct_downloader.CacheManager')
-    @patch('substack_direct_downloader.DatabaseManager')
-    @patch('substack_direct_downloader.IncrementalSyncManager')
-    @patch('substack_direct_downloader.BatchImageDownloader')
-    @patch('substack_direct_downloader.AsyncAdaptiveThrottler')
+    @patch('src.core.substack_direct_downloader.SubstackDirectDownloader._fetch_url')
+    @patch('src.core.substack_direct_downloader.ConnectionPool')
+    @patch('src.core.substack_direct_downloader.CacheManager')
+    @patch('src.core.substack_direct_downloader.DatabaseManager')
+    @patch('src.core.substack_direct_downloader.IncrementalSyncManager')
+    @patch('src.core.substack_direct_downloader.BatchImageDownloader')
+    @patch('src.core.substack_direct_downloader.AsyncAdaptiveThrottler')
     def test_sitemap_with_fallback(self, mock_throttler, mock_image_downloader, mock_sync_manager, 
                                 mock_db, mock_cache, mock_conn_pool, mock_fetch_url, mock_session):
         """Test the sitemap with fallback to other methods when not enough posts found."""
@@ -256,13 +256,13 @@ class TestSitemapIntegration(unittest.TestCase):
             asyncio.set_event_loop(None)
     
     @patch('aiohttp.ClientSession')
-    @patch('substack_direct_downloader.SubstackDirectDownloader._fetch_url')
-    @patch('substack_direct_downloader.ConnectionPool')
-    @patch('substack_direct_downloader.CacheManager')
-    @patch('substack_direct_downloader.DatabaseManager')
-    @patch('substack_direct_downloader.IncrementalSyncManager')
-    @patch('substack_direct_downloader.BatchImageDownloader')
-    @patch('substack_direct_downloader.AsyncAdaptiveThrottler')
+    @patch('src.core.substack_direct_downloader.SubstackDirectDownloader._fetch_url')
+    @patch('src.core.substack_direct_downloader.ConnectionPool')
+    @patch('src.core.substack_direct_downloader.CacheManager')
+    @patch('src.core.substack_direct_downloader.DatabaseManager')
+    @patch('src.core.substack_direct_downloader.IncrementalSyncManager')
+    @patch('src.core.substack_direct_downloader.BatchImageDownloader')
+    @patch('src.core.substack_direct_downloader.AsyncAdaptiveThrottler')
     def test_sitemap_disabled(self, mock_throttler, mock_image_downloader, mock_sync_manager, 
                             mock_db, mock_cache, mock_conn_pool, mock_fetch_url, mock_session):
         """Test when sitemap is disabled."""

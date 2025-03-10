@@ -9,7 +9,7 @@ import unittest
 import tempfile
 from unittest.mock import patch, MagicMock, AsyncMock
 
-from optimized_substack_cli import OptimizedSubstackCLI, parse_args
+from src.core.optimized_substack_cli import OptimizedSubstackCLI, parse_args
 
 
 class TestOptimizedSubstackCLI(unittest.IsolatedAsyncioTestCase):
@@ -80,8 +80,8 @@ class TestOptimizedSubstackCLI(unittest.IsolatedAsyncioTestCase):
         self.assertIsNotNone(self.cli.throttler)
         self.assertIsNotNone(self.cli.connection_pool)
     
-    @patch('optimized_substack_cli.get_substack_auth')
-    @patch('optimized_substack_cli.AsyncSubstackDownloader')
+    @patch('src.core.optimized_substack_cli.get_substack_auth')
+    @patch('src.core.optimized_substack_cli.AsyncSubstackDownloader')
     async def test_download_posts_async(self, mock_async_downloader, mock_get_auth):
         """Test downloading posts using async mode."""
         # Mock the authentication
@@ -117,8 +117,8 @@ class TestOptimizedSubstackCLI(unittest.IsolatedAsyncioTestCase):
             download_images=True
         )
     
-    @patch('optimized_substack_cli.get_substack_auth')
-    @patch('optimized_substack_cli.MultiprocessingDownloader')
+    @patch('src.core.optimized_substack_cli.get_substack_auth')
+    @patch('src.core.optimized_substack_cli.MultiprocessingDownloader')
     async def test_download_posts_multiprocessing(self, mock_mp_downloader, mock_get_auth):
         """Test downloading posts using multiprocessing."""
         # Mock the authentication
@@ -146,8 +146,8 @@ class TestOptimizedSubstackCLI(unittest.IsolatedAsyncioTestCase):
         # if the method was called with the right auth_token
         self.cli.download_posts_multiprocessing.assert_called_once_with("test_token")
     
-    @patch('optimized_substack_cli.get_substack_auth')
-    @patch('optimized_substack_cli.AsyncSubstackDownloader')
+    @patch('src.core.optimized_substack_cli.get_substack_auth')
+    @patch('src.core.optimized_substack_cli.AsyncSubstackDownloader')
     async def test_download_posts(self, mock_async_downloader, mock_get_auth):
         """Test downloading posts."""
         # Mock the authentication
@@ -248,10 +248,10 @@ class TestOptimizedSubstackCLI(unittest.IsolatedAsyncioTestCase):
         # Check that print was called with the correct arguments
         mock_print.assert_called_once_with("Reset sync state for test_author")
     
-    @patch('optimized_substack_cli.OptimizedSubstackCLI.download_posts')
-    @patch('optimized_substack_cli.OptimizedSubstackCLI.show_info')
-    @patch('optimized_substack_cli.OptimizedSubstackCLI.clear_cache')
-    @patch('optimized_substack_cli.OptimizedSubstackCLI.reset_sync')
+    @patch('src.core.optimized_substack_cli.OptimizedSubstackCLI.download_posts')
+    @patch('src.core.optimized_substack_cli.OptimizedSubstackCLI.show_info')
+    @patch('src.core.optimized_substack_cli.OptimizedSubstackCLI.clear_cache')
+    @patch('src.core.optimized_substack_cli.OptimizedSubstackCLI.reset_sync')
     async def test_run(self, mock_reset_sync, mock_clear_cache, mock_show_info, mock_download_posts):
         """Test running the CLI."""
         # Test download command

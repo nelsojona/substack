@@ -12,7 +12,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from substack_api_utils import (
+from src.utils.substack_api_utils import (
     extract_author_from_url,
     extract_slug_from_url,
     construct_post_url,

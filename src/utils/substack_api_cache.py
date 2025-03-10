@@ -15,10 +15,10 @@ import hashlib
 from typing import Dict, List, Any, Optional, Union, Tuple
 
 # Import the base CacheManager
-from cache_manager import CacheManager
+from src.utils.cache_manager import CacheManager
 
 # Import utility functions
-from substack_api_utils import (
+from src.utils.substack_api_utils import (
     extract_author_from_url,
     extract_slug_from_url,
     extract_post_id_from_api_response
