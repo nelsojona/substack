@@ -8,6 +8,8 @@ The following high-priority tasks have been completed in the current sprint:
 - INT-3: Implement newsletter metadata extraction
 - INT-5: Implement concurrent fetching for improved performance
 - INT-6: Add support for exporting subscriber-only content
+- EXT-2: Implement batch processing for multiple authors
+- EXT-3: Add support for filtering posts by date range
 
 All these features have been fully implemented and comprehensive tests have been written for each:
 
@@ -15,15 +17,15 @@ All these features have been fully implemented and comprehensive tests have been
 - `tests/test_newsletter_metadata.py`: Tests for newsletter metadata extraction
 - `tests/test_concurrent_fetching.py`: Tests for concurrent fetching and connection pooling
 - `tests/test_subscriber_content.py`: Tests for subscriber-only content access
+- `tests/test_batch_processor.py`: Tests for batch processing functionality
+- `tests/test_date_filtering.py`: Tests for date filtering functionality
 - `tests/test_integration.py`: End-to-end integration tests for all features working together
 
 ## Current Focus
 
-Based on the TASKS.md file, all the INT tasks (INT-1 through INT-8) have been completed. The next logical focus should be on the Extended Features (EXT tasks) that have not yet been started:
+Based on the TASKS.md file, all the INT tasks (INT-1 through INT-8) have been completed, and we've now completed EXT-2 (batch processing for multiple authors) and EXT-3 (filtering posts by date range). The next logical focus should be on the remaining Extended Features (EXT tasks) that have not yet been started:
 
 - EXT-1: Add support for custom Markdown templates
-- EXT-2: Implement batch processing for multiple authors
-- EXT-3: Add support for filtering posts by date range
 - EXT-4: Implement export to other formats (e.g., PDF, HTML)
 - EXT-6: Integrate with Oxylabs for proxying requests
 
@@ -31,31 +33,19 @@ Based on the TASKS.md file, all the INT tasks (INT-1 through INT-8) have been co
 
 For the next sprint, we recommend focusing on the following tasks in order of priority:
 
-1. **EXT-2: Implement batch processing for multiple authors** (Medium priority, 1d effort)
-   - Create a batch configuration file format (JSON/YAML)
-   - Implement parallel processing of multiple authors
-   - Add CLI option for batch processing
-   - Update documentation with batch processing examples
-
-2. **EXT-3: Add support for filtering posts by date range** (Medium priority, 0.5d effort)
-   - Add CLI arguments for date filtering (--start-date, --end-date)
-   - Implement filter logic in post discovery
-   - Update sitemap parsing to respect date filters
-   - Add date filtering to the API-based fetching methods
-
-3. **EXT-6: Integrate with Oxylabs for proxying requests** (Medium priority, 1d effort)
+1. **EXT-6: Integrate with Oxylabs for proxying requests** (Medium priority, 1d effort)
    - Implement proxy configuration via environment variables
    - Add proxy support to connection pool
    - Create proxy rotation mechanism
    - Add documentation for proxy setup
 
-4. **EXT-1: Add support for custom Markdown templates** (Low priority, 1d effort)
+2. **EXT-1: Add support for custom Markdown templates** (Low priority, 1d effort)
    - Design template format with variables for post metadata
    - Implement template loading and parsing
    - Add CLI option for specifying template file
    - Create example templates
 
-5. **EXT-4: Implement export to other formats** (Low priority, 2d effort)
+3. **EXT-4: Implement export to other formats** (Low priority, 2d effort)
    - Add PDF export using a library like WeasyPrint
    - Add HTML export with customizable styling
    - Implement EPUB export for e-readers
@@ -87,17 +77,17 @@ Based on the implementation experience so far, we recommend the following techni
 
 ## Timeline
 
-- March 15-17: Implement EXT-2 (Batch processing for multiple authors)
-- March 18-19: Implement EXT-3 (Filtering posts by date range)
-- March 20-22: Implement EXT-6 (Oxylabs integration)
-- March 23-25: Implement EXT-1 (Custom Markdown templates)
-- March 26-29: Begin work on EXT-4 (Export to other formats)
+- March 10: Completed EXT-3 (Filtering posts by date range)
+- March 15-17: Implement EXT-6 (Oxylabs integration)
+- March 18-21: Implement EXT-1 (Custom Markdown templates)
+- March 22-29: Begin work on EXT-4 (Export to other formats)
 
 ## Dependencies and Blockers
 
 - Need to add more test coverage for edge cases in authentication
 - Consider upgrading aiohttp to the latest version for better performance
 - May need to add more documentation for the Oxylabs integration
+- Need to ensure the batch processor works well with large numbers of authors
 
 ## Testing Strategy
 
@@ -122,6 +112,61 @@ For each new feature, we will continue to follow the comprehensive testing appro
    - Test loading times and resource usage
    - Verify performance with large datasets
    - Test concurrency handling
+
+## Completed Implementations
+
+### EXT-2: Batch Processing
+
+We have successfully implemented batch processing for multiple authors (EXT-2):
+
+1. **Created a batch processor module**
+   - Implemented `src/utils/batch_processor.py` with the `BatchProcessor` class
+   - Added support for both JSON and YAML configuration formats
+   - Implemented parallel processing using Python's multiprocessing
+
+2. **Added CLI support**
+   - Updated `main.py` to add a new "batch" command
+   - Added command-line arguments for batch processing
+   - Implemented a helper function to create example configuration files
+
+3. **Added comprehensive tests**
+   - Created `tests/test_batch_processor.py` with unit tests for all functionality
+   - Tested configuration loading, validation, and processing
+   - Added tests for both sequential and parallel processing
+
+4. **Updated documentation**
+   - Added batch processing section to README.md
+   - Updated TASKS.md to mark EXT-2 as completed
+   - Updated this implementation plan to reflect the completed work
+
+The batch processing feature allows users to efficiently download content from multiple Substack authors in parallel, with customizable settings for each author. This is particularly useful for backing up or migrating content from multiple newsletters.
+
+### EXT-3: Date Filtering
+
+We have successfully implemented date filtering for posts (EXT-3):
+
+1. **Added CLI arguments for date filtering**
+   - Implemented `--start-date` and `--end-date` arguments in the CLI
+   - Added proper date parsing and validation
+   - Updated help documentation to explain the date format (YYYY-MM-DD)
+
+2. **Implemented filter logic in post discovery**
+   - Added a `_is_post_in_date_range` method to check if posts are within the specified date range
+   - Updated sitemap parsing to respect date filters using the `lastmod` element
+   - Added date filtering to the post download process
+
+3. **Added comprehensive tests**
+   - Created `tests/test_date_filtering.py` with unit tests for all functionality
+   - Tested date parsing, validation, and filtering logic
+   - Added tests for both sitemap-based and direct fetching methods
+
+4. **Updated documentation**
+   - Added date filtering section to README.md
+   - Updated command-line arguments table to include the new date filtering options
+   - Updated TASKS.md to mark EXT-3 as completed
+   - Updated this implementation plan to reflect the completed work
+
+The date filtering feature allows users to download only posts published within a specific date range, making it easier to archive or process posts from a particular time period.
 
 ## Documentation Updates
 
