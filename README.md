@@ -1,5 +1,7 @@
 # Substack to Markdown CLI
 
+[![Python Tests](https://github.com/nelsojona/substack/actions/workflows/python-tests.yml/badge.svg)](https://github.com/nelsojona/substack/actions/workflows/python-tests.yml)
+
 A command-line tool that fetches posts from Substack using the Substack API wrapper and converts them to Markdown format.
 
 ## Overview
