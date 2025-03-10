@@ -11,7 +11,7 @@ import sqlite3
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
-from database_manager import DatabaseManager
+from src.utils.database_manager import DatabaseManager
 
 
 class TestDatabaseManager(unittest.TestCase):

@@ -13,7 +13,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from markdown_converter import MarkdownConverter
+from src.utils.markdown_converter import MarkdownConverter
 
 
 class TestMarkdownConverter(unittest.TestCase):
@@ -103,7 +103,7 @@ class TestMarkdownConverter(unittest.TestCase):
         markdown = self.converter.convert_html_to_markdown(None, verbose=True)
         self.assertIsNone(markdown)
 
-    @patch('markdown_converter.md')
+    @patch('src.utils.markdown_converter.md')
     def test_convert_html_to_markdown_exception(self, mock_md):
         """Test handling of exceptions during conversion."""
         # Set up mock to raise an exception

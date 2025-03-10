@@ -11,7 +11,7 @@ import tempfile
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
-from incremental_sync import IncrementalSync, IncrementalSyncManager
+from src.utils.incremental_sync import IncrementalSync, IncrementalSyncManager
 
 
 class TestIncrementalSync(unittest.TestCase):

@@ -8,7 +8,7 @@ import unittest
 import tempfile
 from unittest.mock import patch, MagicMock, Mock
 
-from multiprocessing_downloader import MultiprocessingDownloader
+from src.core.multiprocessing_downloader import MultiprocessingDownloader
 
 
 class TestMultiprocessingDownloader(unittest.TestCase):
@@ -113,7 +113,7 @@ class TestMultiprocessingDownloader(unittest.TestCase):
         # Check the result
         self.assertIsNone(response)
     
-    @patch('multiprocessing_downloader.MultiprocessingDownloader._fetch_url')
+    @patch('src.core.multiprocessing_downloader.MultiprocessingDownloader._fetch_url')
     def test_find_post_urls(self, mock_fetch_url):
         """Test finding post URLs."""
         # Mock the fetch_url method
@@ -139,7 +139,7 @@ class TestMultiprocessingDownloader(unittest.TestCase):
         # Check that fetch_url was called with the correct URL
         mock_fetch_url.assert_called_once_with("https://test_author.substack.com/archive")
     
-    @patch('multiprocessing_downloader.MultiprocessingDownloader._fetch_url')
+    @patch('src.core.multiprocessing_downloader.MultiprocessingDownloader._fetch_url')
     def test_find_post_urls_multiple_pages(self, mock_fetch_url):
         """Test finding post URLs from multiple pages."""
         # Mock the fetch_url method
@@ -179,8 +179,8 @@ class TestMultiprocessingDownloader(unittest.TestCase):
         mock_fetch_url.assert_any_call("https://test_author.substack.com/archive")
         mock_fetch_url.assert_any_call("https://test_author.substack.com/archive?page=2")
     
-    @patch('multiprocessing_downloader.MultiprocessingDownloader._fetch_url')
-    @patch('multiprocessing_downloader.MarkdownConverter.convert_html_to_markdown')
+    @patch('src.core.multiprocessing_downloader.MultiprocessingDownloader._fetch_url')
+    @patch('src.core.multiprocessing_downloader.MarkdownConverter.convert_html_to_markdown')
     def test_download_post(self, mock_convert, mock_fetch_url):
         """Test downloading a post."""
         # Mock the fetch_url method
@@ -229,8 +229,8 @@ class TestMultiprocessingDownloader(unittest.TestCase):
         
         self.assertEqual(content, "# Test Post\n\nThis is a test post.")
     
-    @patch('multiprocessing_downloader.Pool')
-    @patch('multiprocessing_downloader.MultiprocessingDownloader.find_post_urls')
+    @patch('src.core.multiprocessing_downloader.Pool')
+    @patch('src.core.multiprocessing_downloader.MultiprocessingDownloader.find_post_urls')
     def test_download_all_posts(self, mock_find_post_urls, mock_pool):
         """Test downloading all posts."""
         # Mock the find_post_urls method
@@ -272,8 +272,8 @@ class TestMultiprocessingDownloader(unittest.TestCase):
         self.assertEqual(args[0].__name__, "_download_post_wrapper")
         self.assertEqual(len(args[1]), 3)
     
-    @patch('multiprocessing_downloader.Pool')
-    @patch('multiprocessing_downloader.MultiprocessingDownloader.find_post_urls')
+    @patch('src.core.multiprocessing_downloader.Pool')
+    @patch('src.core.multiprocessing_downloader.MultiprocessingDownloader.find_post_urls')
     def test_download_all_posts_with_limit(self, mock_find_post_urls, mock_pool):
         """Test downloading all posts with a limit."""
         # Mock the find_post_urls method
