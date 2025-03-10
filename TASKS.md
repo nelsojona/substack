@@ -53,13 +53,13 @@ This TASKS.md file outlines the implementation tasks for the Substack to Markdow
 | Task ID | Description | Priority | Status | Effort | Dependencies | Responsible |
 |---------|-------------|----------|--------|--------|--------------|-------------|
 | INT-1   | Enhance SubstackFetcher to use direct Post object methods | High | ✅ Completed | 1d | FEAT-3, FEAT-4 | Dev |
-| INT-2   | Add support for fetching post comments | Medium | ⏳ Not Started | 1d | INT-1 | Dev |
-| INT-3   | Implement newsletter metadata extraction | Medium | ⏳ Not Started | 0.5d | INT-1 | Dev |
+| INT-2   | Add support for fetching post comments | Medium | ✅ Completed | 1d | INT-1 | Dev |
+| INT-3   | Implement newsletter metadata extraction | Medium | ✅ Completed | 0.5d | INT-1 | Dev |
 | INT-4   | Add support for authenticated access to private content | Low | ✅ Completed | 2d | INT-1 | Dev |
-| INT-5   | Implement concurrent fetching for improved performance | Medium | ⏳ Not Started | 1.5d | INT-1, PERF-1 | Dev |
-| INT-6   | Add support for exporting subscriber-only content | Low | ⏳ Not Started | 1d | INT-4 | Dev |
-| INT-7   | Create utility functions for working with Substack API objects | Medium | ⏳ Not Started | 1d | INT-1 | Dev |
-| INT-8   | Implement caching mechanism for API responses | Low | ⏳ Not Started | 1d | INT-1, INT-7, PERF-3 | Dev |
+| INT-5   | Implement concurrent fetching for improved performance | Medium | ✅ Completed | 1.5d | INT-1, PERF-1 | Dev |
+| INT-6   | Add support for exporting subscriber-only content | Low | ✅ Completed | 1d | INT-4 | Dev |
+| INT-7   | Create utility functions for working with Substack API objects | Medium | ✅ Completed | 1d | INT-1 | Dev |
+| INT-8   | Implement caching mechanism for API responses | Low | ✅ Completed | 1d | INT-1, INT-7, PERF-3 | Dev |
 
 ## Extended Features
 
@@ -72,3 +72,4 @@ This TASKS.md file outlines the implementation tasks for the Substack to Markdow
 | EXT-5   | Add support for downloading and embedding images | Medium | ✅ Completed | 1.5d | FEAT-5, INT-1 | Dev |
 | EXT-6   | Integrate with Oxylabs for proxying requests | Medium | ⏳ Not Started | 1d | FEAT-3, FEAT-4 | Dev |
 | EXT-7   | Add support for environment variables via .env file | Medium | ✅ Completed | 0.5d | FEAT-1 | Dev |
+| EXT-8   | Update .gitignore and commit project files | Medium | ✅ Completed | 0.5d | FEAT-1 | Dev |
