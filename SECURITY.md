@@ -7,7 +7,7 @@ The Substack to Markdown CLI team takes security issues seriously. We appreciate
 To report a security vulnerability, please follow these steps:
 
 1. **DO NOT** create a public GitHub issue for the vulnerability.
-2. Email your findings to [security@example.com](mailto:security@example.com). If possible, encrypt your message with our PGP key (available upon request).
+2. Message findings to me on Github @nelsojona. If possible, encrypt your message with our PGP key (available upon request).
 3. Include the following information in your report:
    - Type of issue (e.g., buffer overflow, SQL injection, cross-site scripting, etc.)
    - Full paths of source file(s) related to the manifestation of the issue
