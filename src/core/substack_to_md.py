@@ -24,9 +24,9 @@ from datetime import datetime
 
 from tqdm import tqdm
 
-from substack_fetcher import SubstackFetcher, Post
-from markdown_converter import MarkdownConverter
-from env_loader import load_env_vars, get_substack_auth, get_general_config, get_oxylabs_config
+from src.core.substack_fetcher import SubstackFetcher, Post
+from src.utils.markdown_converter import MarkdownConverter
+from src.utils.env_loader import load_env_vars, get_substack_auth, get_general_config, get_oxylabs_config
 
 # Load environment variables from .env file
 load_env_vars()

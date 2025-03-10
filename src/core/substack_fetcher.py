@@ -20,7 +20,7 @@ import requests
 from substack_api.newsletter import get_newsletter_post_metadata, get_post_contents
 
 # Import environment variable loader
-from env_loader import load_env_vars, get_oxylabs_config
+from src.utils.env_loader import load_env_vars, get_oxylabs_config
 
 # Define a Substack class for backward compatibility with tests
 class Substack:

@@ -16,14 +16,14 @@ import argparse
 import asyncio
 from typing import Dict, List, Any, Optional, Tuple
 
-from async_substack_downloader import AsyncSubstackDownloader
-from multiprocessing_downloader import MultiprocessingDownloader
-from cache_manager import CacheManager
-from adaptive_throttler import AdaptiveThrottler
-from batch_image_downloader import BatchImageDownloader
-from connection_pool import ConnectionPool
-from incremental_sync import IncrementalSync, IncrementalSyncManager
-from database_manager import DatabaseManager
+from src.core.async_substack_downloader import AsyncSubstackDownloader
+from src.core.multiprocessing_downloader import MultiprocessingDownloader
+from src.utils.cache_manager import CacheManager
+from src.utils.adaptive_throttler import AdaptiveThrottler
+from src.utils.batch_image_downloader import BatchImageDownloader
+from src.utils.connection_pool import ConnectionPool
+from src.utils.incremental_sync import IncrementalSync, IncrementalSyncManager
+from src.utils.database_manager import DatabaseManager
 
 # Configure logging
 logging.basicConfig(

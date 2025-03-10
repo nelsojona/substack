@@ -18,9 +18,9 @@ from typing import Dict, List, Set, Any, Optional, Tuple, Union
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 
-from connection_pool import ConnectionPool
-from adaptive_throttler import AsyncAdaptiveThrottler
-from markdown_converter import MarkdownConverter
+from src.utils.connection_pool import ConnectionPool
+from src.utils.adaptive_throttler import AsyncAdaptiveThrottler
+from src.utils.markdown_converter import MarkdownConverter
 
 # Configure logging
 logging.basicConfig(
