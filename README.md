@@ -494,11 +494,14 @@ This will save the cookies to the specified file, which you can then use for fut
 
 ## Dependencies
 
-- [substack_api](https://github.com/NHagar/substack_api): Python wrapper for the Substack API
+- [substack_api](https://github.com/NHagar/substack_api): Python wrapper for the Substack API - used for fetching post metadata and content
 - [markdownify](https://github.com/matthewwithanm/python-markdownify): Library for converting HTML to Markdown
 - argparse: Standard library for parsing command-line arguments
 - requests: HTTP library for Python
 - tqdm: Progress bar library for Python
+- beautifulsoup4: Library for parsing HTML
+- aiohttp: Asynchronous HTTP client/server framework
+- python-dotenv: Library for loading environment variables from .env files
 
 ## Error Handling
 
