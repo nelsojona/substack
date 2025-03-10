@@ -94,13 +94,21 @@ The direct downloader offers better performance and uses sitemap.xml for more re
 python main.py direct --author <author_identifier>
 ```
 
-#### 2. Optimized CLI
+#### 2. Batch Processing
+
+Process multiple authors in parallel using a configuration file:
+
+```bash
+python main.py batch --config <config_file_path>
+```
+
+#### 3. Optimized CLI
 
 ```bash
 python main.py optimized download --author <author_identifier>
 ```
 
-#### 3. Classic Interface
+#### 4. Classic Interface
 
 ```bash
 python main.py classic --author <author_identifier>
@@ -114,6 +122,12 @@ The general command structure for the direct downloader:
 
 ```bash
 python main.py direct --author <author> [options]
+```
+
+For batch processing:
+
+```bash
+python main.py batch --config <config_file> [options]
 ```
 
 ### Common Usage Patterns
@@ -183,6 +197,16 @@ Force refresh existing posts:
 ```bash
 python main.py direct --author big --force
 ```
+
+#### 9. Filtering Posts by Date Range
+
+Filter posts by date range:
+
+```bash
+python main.py direct --author big --start-date 2023-01-01 --end-date 2023-12-31
+```
+
+This will only download posts published between January 1, 2023 and December 31, 2023.
 
 ### Handling Images
 
@@ -266,6 +290,8 @@ This will guide you through the process of obtaining an authentication token fro
 | `--use-sitemap` | Use sitemap.xml for post discovery | No | True |
 | `--no-sitemap` | Skip using sitemap.xml for post discovery | No | False |
 | `--include-comments` | Include post comments in the output | No | False |
+| `--start-date` | Start date for filtering posts (YYYY-MM-DD) | No | - |
+| `--end-date` | End date for filtering posts (YYYY-MM-DD) | No | - |
 
 ### Authentication Arguments
 
@@ -288,9 +314,96 @@ This will guide you through the process of obtaining an authentication token fro
 | `--max-image-workers` | Maximum number of concurrent image downloads | No | 4 |
 | `--image-timeout` | Timeout for image download requests in seconds | No | 10 |
 
+### Batch Processing
+
+The batch processing feature allows you to download posts from multiple Substack authors in parallel. This is especially useful for backing up or migrating content from multiple newsletters.
+
+#### Creating a Batch Configuration File
+
+You can create an example configuration file with:
+
+```bash
+python main.py batch --config authors.json --create-example
+```
+
+This will generate a JSON file with the following structure:
+
+```json
+{
+  "authors": [
+    {
+      "identifier": "mattstoller",
+      "output_dir": "output/mattstoller",
+      "max_posts": 10,
+      "include_comments": true,
+      "no_images": false,
+      "incremental": true,
+      "verbose": true
+    },
+    {
+      "identifier": "tradecompanion",
+      "max_posts": 5,
+      "include_comments": false,
+      "token": "your-auth-token-here"
+    },
+    {
+      "identifier": "another-author",
+      "max_concurrency": 10,
+      "max_image_concurrency": 20
+    }
+  ],
+  "global_settings": {
+    "min_delay": 1.0,
+    "max_delay": 5.0,
+    "max_concurrency": 5,
+    "max_image_concurrency": 10
+  }
+}
+```
+
+You can also use YAML format by specifying a `.yaml` or `.yml` extension:
+
+```bash
+python main.py batch --config authors.yaml --create-example
+```
+
+#### Running Batch Processing
+
+To process all authors in the configuration file:
+
+```bash
+python main.py batch --config authors.json
+```
+
+You can specify the output directory and the number of parallel processes:
+
+```bash
+python main.py batch --config authors.json --output custom_output --processes 4
+```
+
+#### Configuration Options
+
+Each author in the configuration can have the following options:
+
+- `identifier` (required): The Substack author identifier
+- `output_dir`: Custom output directory for this author
+- `max_posts`: Maximum number of posts to download
+- `include_comments`: Whether to include comments in the output
+- `no_images`: Skip downloading images
+- `token`: Authentication token for private content
+- `incremental`: Only download new or updated content
+- `force`: Force refresh of already downloaded posts
+- `verbose`: Enable verbose output
+- `min_delay`: Minimum delay between requests
+- `max_delay`: Maximum delay between requests
+- `max_concurrency`: Maximum concurrent requests
+- `max_image_concurrency`: Maximum concurrent image downloads
+- `no_sitemap`: Skip using sitemap.xml for post discovery
+
 ## Features
 
 - Fetches all posts for a specified Substack author
+- Filters posts by date range
 - Converts HTML content to Markdown format
 - Preserves formatting, links, and images
 - Handles pagination to retrieve all available posts
@@ -306,6 +419,7 @@ This will guide you through the process of obtaining an authentication token fro
 - Utilizes optimized performance with async, multiprocessing, and adaptive throttling
 - Offers incremental sync to efficiently update content
 - Implements robust error handling and recovery mechanisms
+- Supports batch processing of multiple authors in parallel
 
 ## Enhanced Mode
 
@@ -389,12 +503,8 @@ The tool includes robust error handling for:
 Planned future enhancements include:
 
 - Custom Markdown templates
-- Batch processing for multiple authors
-- Filtering posts by date range
 - Export to other formats (e.g., PDF, HTML)
 - Integration with Oxylabs for proxying requests to avoid rate limiting
-- Utility functions for working with Substack API objects
-- Enhanced caching mechanism for API responses
 
 ## Performance Optimizations
 

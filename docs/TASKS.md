@@ -66,8 +66,8 @@ This TASKS.md file outlines the implementation tasks for the Substack to Markdow
 | Task ID | Description | Priority | Status | Effort | Dependencies | Responsible |
 |---------|-------------|----------|--------|--------|--------------|-------------|
 | EXT-1   | Add support for custom Markdown templates | Low | ⏳ Not Started | 1d | FEAT-5 | Dev |
-| EXT-2   | Implement batch processing for multiple authors | Medium | ⏳ Not Started | 1d | FEAT-4, INT-1 | Dev |
-| EXT-3   | Add support for filtering posts by date range | Medium | ⏳ Not Started | 0.5d | FEAT-4, INT-1 | Dev |
+| EXT-2   | Implement batch processing for multiple authors | Medium | ✅ Completed | 1d | FEAT-4, INT-1 | Dev |
+| EXT-3   | Add support for filtering posts by date range | Medium | ✅ Completed | 0.5d | FEAT-4, INT-1 | Dev |
 | EXT-4   | Implement export to other formats (e.g., PDF, HTML) | Low | ⏳ Not Started | 2d | FEAT-5 | Dev |
 | EXT-5   | Add support for downloading and embedding images | Medium | ✅ Completed | 1.5d | FEAT-5, INT-1 | Dev |
 | EXT-6   | Integrate with Oxylabs for proxying requests | Medium | ⏳ Not Started | 1d | FEAT-3, FEAT-4 | Dev |

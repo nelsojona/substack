@@ -105,7 +105,9 @@ class SubstackDirectDownloader:
         verbose: bool = False,
         incremental: bool = False,
         use_sitemap: bool = True,
-        include_comments: bool = False
+        include_comments: bool = False,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None
     ):
         """
         Initialize the SubstackDirectDownloader.
@@ -123,6 +125,8 @@ class SubstackDirectDownloader:
             incremental (bool, optional): Enable incremental sync. Defaults to False.
             use_sitemap (bool, optional): Use sitemap.xml for post discovery. Defaults to True.
             include_comments (bool): Whether to include comments in the output. Defaults to False.
+            start_date (Optional[str], optional): Start date for filtering posts (YYYY-MM-DD). Defaults to None.
+            end_date (Optional[str], optional): End date for filtering posts (YYYY-MM-DD). Defaults to None.
         """
         self.author = author
         self.base_url = f"https://{author}.substack.com"
@@ -132,6 +136,26 @@ class SubstackDirectDownloader:
         self.incremental = incremental
         self.use_sitemap = use_sitemap
         self.include_comments = include_comments
+        
+        # Parse and store date filters
+        self.start_date = None
+        self.end_date = None
+        
+        if start_date:
+            try:
+                self.start_date = datetime.strptime(start_date, '%Y-%m-%d')
+                logger.info(f"Filtering posts from {start_date}")
+            except ValueError:
+                logger.warning(f"Invalid start date format: {start_date}. Expected YYYY-MM-DD. Ignoring filter.")
+        
+        if end_date:
+            try:
+                self.end_date = datetime.strptime(end_date, '%Y-%m-%d')
+                # Set end_date to the end of the day (23:59:59)
+                self.end_date = self.end_date.replace(hour=23, minute=59, second=59)
+                logger.info(f"Filtering posts until {end_date}")
+            except ValueError:
+                logger.warning(f"Invalid end date format: {end_date}. Expected YYYY-MM-DD. Ignoring filter.")
         
         # Set up logging level
         if verbose:
@@ -591,6 +615,35 @@ class SubstackDirectDownloader:
             logger.error(f"Error in Trade Companion fetch for {url}: {e}")
             return None
     
+    def _is_post_in_date_range(self, post_date: Optional[datetime]) -> bool:
+        """
+        Check if a post date is within the specified date range.
+        
+        Args:
+            post_date (Optional[datetime]): Post date to check
+            
+        Returns:
+            bool: True if the post is within the date range, False otherwise
+        """
+        # If no date filters are set, include all posts
+        if not self.start_date and not self.end_date:
+            return True
+            
+        # If post_date is None, we can't filter it
+        if post_date is None:
+            return True
+            
+        # Check start date
+        if self.start_date and post_date < self.start_date:
+            return False
+            
+        # Check end date
+        if self.end_date and post_date > self.end_date:
+            return False
+            
+        # If we get here, the post is within the date range
+        return True
+
     async def _find_post_urls_from_sitemap(self) -> List[str]:
         """
         Find post URLs by fetching and parsing the sitemap.xml file.
@@ -618,12 +671,32 @@ class SubstackDirectDownloader:
             namespace = {"ns": "http://www.sitemaps.org/schemas/sitemap/0.9"}
             for url_elem in root.findall(".//ns:url", namespace):
                 loc_elem = url_elem.find("ns:loc", namespace)
+                lastmod_elem = url_elem.find("ns:lastmod", namespace)
+                
                 if loc_elem is not None:
                     url = loc_elem.text
                     
                     # Only include post URLs
                     if "/p/" in url:
-                        post_urls.append(url)
+                        # Check date filter if lastmod is available
+                        if lastmod_elem is not None and (self.start_date or self.end_date):
+                            lastmod_str = lastmod_elem.text
+                            try:
+                                # Parse the lastmod date (format: YYYY-MM-DDThh:mm:ss+00:00)
+                                lastmod_date = datetime.fromisoformat(lastmod_str.replace('Z', '+00:00'))
+                                
+                                # Apply date filter
+                                if self._is_post_in_date_range(lastmod_date):
+                                    post_urls.append(url)
+                                else:
+                                    logger.debug(f"Skipping post {url} with date {lastmod_str} (outside filter range)")
+                            except ValueError:
+                                # If we can't parse the date, include the post
+                                logger.warning(f"Could not parse lastmod date '{lastmod_str}' for {url}, including anyway")
+                                post_urls.append(url)
+                        else:
+                            # If no lastmod or no date filter, include the post
+                            post_urls.append(url)
             
             logger.info(f"Found {len(post_urls)} post URLs in sitemap")
             return post_urls
@@ -1154,7 +1227,7 @@ class SubstackDirectDownloader:
         
         return markdown
     
-    async def download_post(self, url: str, force: bool = False, download_images: bool = True, use_direct: bool = False) -> bool:
+    async def download_post(self, url: str, force: bool = False, download_images: bool = True, use_direct: bool = False) -> Union[bool, str]:
         """
         Download a post and save it as markdown.
         
@@ -1165,7 +1238,7 @@ class SubstackDirectDownloader:
             use_direct (bool, optional): Use direct fetch method. Defaults to False.
         
         Returns:
-            bool: True if successful, False otherwise
+            Union[bool, str]: True if successful, False if failed, "skipped" if skipped
         """
         logger.info(f"Downloading post: {url}")
         
@@ -1196,6 +1269,17 @@ class SubstackDirectDownloader:
             if post_data:
                 metadata = post_data
                 html = post_data["html"]
+                
+                # Apply date filter if direct fetch was successful
+                if metadata and "date" in metadata and (self.start_date or self.end_date):
+                    try:
+                        post_date = datetime.strptime(metadata["date"], '%Y-%m-%d')
+                        if not self._is_post_in_date_range(post_date):
+                            logger.info(f"Skipping post {url} with date {metadata['date']} (outside filter range)")
+                            return "skipped"
+                    except ValueError:
+                        # If we can't parse the date, include the post
+                        logger.warning(f"Could not parse date '{metadata['date']}' for {url}, including anyway")
         
         # For tradecompanion, try the special method if direct method wasn't used or failed
         if (not metadata or not html) and self.author == "tradecompanion" and self.auth_token:
@@ -1211,6 +1295,17 @@ class SubstackDirectDownloader:
             if html:
                 # Extract metadata from HTML
                 metadata = await self.extract_post_metadata(html, url)
+                
+                # Apply date filter
+                if metadata and "date" in metadata and (self.start_date or self.end_date):
+                    try:
+                        post_date = datetime.strptime(metadata["date"], '%Y-%m-%d')
+                        if not self._is_post_in_date_range(post_date):
+                            logger.info(f"Skipping post {url} with date {metadata['date']} (outside filter range)")
+                            return "skipped"
+                    except ValueError:
+                        # If we can't parse the date, include the post
+                        logger.warning(f"Could not parse date '{metadata['date']}' for {url}, including anyway")
         
         # If we failed to get content, exit
         if not html or not metadata:
@@ -1338,6 +1433,8 @@ async def main():
     parser.add_argument('--no-sitemap', action='store_true', help='Skip using sitemap.xml for post discovery')
     parser.add_argument('--direct', action='store_true', help='Use direct simplified method for downloading (can only be used with --url)')
     parser.add_argument('--include-comments', action='store_true', help='Include comments in the output')
+    parser.add_argument('--start-date', type=str, help='Start date for filtering posts (YYYY-MM-DD)')
+    parser.add_argument('--end-date', type=str, help='End date for filtering posts (YYYY-MM-DD)')
     
     args = parser.parse_args()
     
@@ -1354,7 +1451,9 @@ async def main():
         verbose=args.verbose,
         incremental=args.incremental,
         use_sitemap=not args.no_sitemap,
-        include_comments=args.include_comments
+        include_comments=args.include_comments,
+        start_date=args.start_date,
+        end_date=args.end_date
     ) as downloader:
         # Set authentication token if provided
         if args.token:
