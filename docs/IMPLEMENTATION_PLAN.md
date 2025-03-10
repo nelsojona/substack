@@ -1,4 +1,4 @@
-# Implementation Plan for Next Sprint (March 15-29, 2025)
+# Implementation Plan for Next Sprint (March 16-30, 2025)
 
 ## Completed Tasks
 
@@ -8,8 +8,11 @@ The following high-priority tasks have been completed in the current sprint:
 - INT-3: Implement newsletter metadata extraction
 - INT-5: Implement concurrent fetching for improved performance
 - INT-6: Add support for exporting subscriber-only content
+- EXT-1: Add support for custom Markdown templates
 - EXT-2: Implement batch processing for multiple authors
 - EXT-3: Add support for filtering posts by date range
+- EXT-4: Implement export to other formats (e.g., PDF, HTML)
+- EXT-6: Integrate with Oxylabs for proxying requests
 
 All these features have been fully implemented and comprehensive tests have been written for each:
 
@@ -17,33 +20,102 @@ All these features have been fully implemented and comprehensive tests have been
 - `tests/test_newsletter_metadata.py`: Tests for newsletter metadata extraction
 - `tests/test_concurrent_fetching.py`: Tests for concurrent fetching and connection pooling
 - `tests/test_subscriber_content.py`: Tests for subscriber-only content access
+- `tests/test_template_manager.py`: Tests for custom Markdown templates
+- `tests/test_format_converter.py`: Tests for format conversion functionality
 - `tests/test_batch_processor.py`: Tests for batch processing functionality
 - `tests/test_date_filtering.py`: Tests for date filtering functionality
+- `tests/test_proxy_handler.py`: Tests for Oxylabs proxy integration
 - `tests/test_integration.py`: End-to-end integration tests for all features working together
 
-## Current Focus
+## Current Status
 
-Based on the TASKS.md file, all the INT tasks (INT-1 through INT-8) have been completed, and we've now completed EXT-2 (batch processing for multiple authors) and EXT-3 (filtering posts by date range). The next logical focus should be on the remaining Extended Features (EXT tasks) that have not yet been started:
+Based on the TASKS.md file, all the INT tasks (INT-1 through INT-8) and most of the EXT tasks have been completed. The project has made significant progress, with all high-priority features now implemented and tested.
 
-- EXT-1: Add support for custom Markdown templates
-- EXT-4: Implement export to other formats (e.g., PDF, HTML)
-- EXT-6: Integrate with Oxylabs for proxying requests
+## Recent Implementations
+
+### EXT-1: Custom Markdown Templates
+
+We have successfully implemented custom Markdown templates:
+
+1. **Created a template manager module**
+   - Implemented `src/utils/template_manager.py` with the `TemplateManager` class
+   - Added support for loading templates from a directory
+   - Implemented template parsing and variable substitution using Python's string.Template
+
+2. **Added CLI support**
+   - Updated `main.py` to add a new "template" command for managing templates
+   - Added command-line arguments for template selection in the direct downloader
+   - Implemented a helper function to create example templates
+
+3. **Integrated with the downloader**
+   - Modified `SubstackDirectDownloader` to support template-based output
+   - Added template-related parameters to the constructor
+   - Updated the post download process to use templates for formatting
+
+4. **Added comprehensive tests**
+   - Created `tests/test_template_manager.py` with unit tests for all functionality
+   - Tested template loading, parsing, and application
+   - Added tests for error handling and edge cases
+
+5. **Updated documentation**
+   - Added custom templates section to README.md
+   - Updated TASKS.md to mark EXT-1 as completed
+
+The custom templates feature allows users to customize the format and structure of the generated Markdown files, making it easier to integrate with different publishing platforms or personal workflows.
+
+### EXT-4: Export to Other Formats
+
+We have successfully implemented export to other formats:
+
+1. **Created a format converter module**
+   - Implemented `src/utils/format_converter.py` with the `FormatConverter` class
+   - Added support for HTML, PDF, and EPUB formats
+   - Implemented integration with Pandoc for format conversion
+
+2. **Added CLI support**
+   - Updated `main.py` to add a new "convert" command
+   - Added command-line arguments for format selection and conversion options
+   - Implemented dependency checking for external tools
+
+3. **Implemented format-specific features**
+   - Added CSS styling for HTML and PDF output
+   - Implemented metadata handling for all formats
+   - Added support for cover images in EPUB output
+
+4. **Added comprehensive tests**
+   - Created `tests/test_format_converter.py` with unit tests for all functionality
+   - Tested conversion to different formats
+   - Added tests for error handling and dependency checking
+
+5. **Updated documentation**
+   - Added format conversion section to README.md
+   - Updated TASKS.md to mark EXT-4 as completed
+
+The format conversion feature allows users to export Markdown files to other formats like HTML, PDF, and EPUB, making it easier to share content in different contexts or publish to different platforms.
 
 ## Next Tasks
 
-For the next sprint, we recommend focusing on the following tasks in order of priority:
+For the next sprint, we recommend focusing on the following tasks:
 
-1. **EXT-1: Add support for custom Markdown templates** (Low priority, 1d effort)
-   - Design template format with variables for post metadata
-   - Implement template loading and parsing
-   - Add CLI option for specifying template file
-   - Create example templates
+1. **Implement a unified configuration system**
+   - Create a centralized configuration module
+   - Support loading configuration from files, environment variables, and command-line arguments
+   - Add validation and documentation for configuration options
 
-3. **EXT-4: Implement export to other formats** (Low priority, 2d effort)
-   - Add PDF export using a library like WeasyPrint
-   - Add HTML export with customizable styling
-   - Implement EPUB export for e-readers
-   - Add CLI options for format selection
+2. **Enhance the CLI interface**
+   - Implement a more consistent command structure
+   - Add better help documentation
+   - Implement tab completion for commands and options
+
+3. **Improve error reporting and logging**
+   - Implement structured logging
+   - Add better error messages and recovery suggestions
+   - Create a log viewer/analyzer tool
+
+4. **Create a web interface**
+   - Implement a simple web UI for the tool
+   - Add support for managing downloads through the web interface
+   - Implement real-time progress reporting
 
 ## Technical Recommendations
 
@@ -71,17 +143,18 @@ Based on the implementation experience so far, we recommend the following techni
 
 ## Timeline
 
-- March 10: Completed EXT-3 (Filtering posts by date range)
-- March 10: Completed EXT-6 (Oxylabs integration)
-- March 15-18: Implement EXT-1 (Custom Markdown templates)
-- March 19-26: Begin work on EXT-4 (Export to other formats)
+- March 10: Completed EXT-1 (Custom Markdown templates)
+- March 10: Completed EXT-4 (Export to other formats)
+- March 16-20: Implement unified configuration system
+- March 21-25: Enhance CLI interface
+- March 26-30: Improve error reporting and logging
 
 ## Dependencies and Blockers
 
 - Need to add more test coverage for edge cases in authentication
 - Consider upgrading aiohttp to the latest version for better performance
-- May need to add more documentation for the Oxylabs integration
-- Need to ensure the batch processor works well with large numbers of authors
+- May need to add more documentation for the format conversion feature
+- Need to ensure the template system works well with different Markdown flavors
 
 ## Testing Strategy
 
@@ -107,96 +180,6 @@ For each new feature, we will continue to follow the comprehensive testing appro
    - Verify performance with large datasets
    - Test concurrency handling
 
-## Completed Implementations
-
-### EXT-6: Oxylabs Integration
-
-We have successfully implemented Oxylabs proxy integration (EXT-6):
-
-1. **Created a proxy handler module**
-   - Implemented `src/utils/proxy_handler.py` with the `OxylabsProxyHandler` class
-   - Added support for all Oxylabs proxy configuration options (country, city, state, session)
-   - Implemented methods for different proxy usage scenarios (urllib, requests, aiohttp)
-
-2. **Added proxy support to connection pool**
-   - Updated `src/utils/connection_pool.py` to support proxy configuration
-   - Integrated proxy with aiohttp sessions
-   - Added proxy support to the OptimizedHttpClient class
-
-3. **Integrated with environment variables**
-   - Leveraged existing `env_loader.py` module for loading proxy configuration
-   - Added fallback to environment variables when proxy config is not provided directly
-
-4. **Updated the downloader class**
-   - Modified `SubstackDirectDownloader` to support proxy configuration
-   - Added proxy-related command-line arguments
-   - Implemented validation and fallback mechanisms for proxy configuration
-
-5. **Added comprehensive tests**
-   - Created `tests/test_proxy_handler.py` with unit tests for all functionality
-   - Tested proxy URL building with various configuration options
-   - Added tests for integration with connection pool and downloader
-   - Implemented tests for environment variable integration
-
-6. **Updated documentation**
-   - Updated TASKS.md to mark EXT-6 as completed
-   - Updated this implementation plan to reflect the completed work
-
-The Oxylabs proxy integration allows users to route requests through different IP addresses, which helps avoid rate limiting and access geo-restricted content. The implementation supports all Oxylabs proxy features including country/city selection, session persistence, and configuration via environment variables.
-
-### EXT-2: Batch Processing
-
-We have successfully implemented batch processing for multiple authors (EXT-2):
-
-1. **Created a batch processor module**
-   - Implemented `src/utils/batch_processor.py` with the `BatchProcessor` class
-   - Added support for both JSON and YAML configuration formats
-   - Implemented parallel processing using Python's multiprocessing
-
-2. **Added CLI support**
-   - Updated `main.py` to add a new "batch" command
-   - Added command-line arguments for batch processing
-   - Implemented a helper function to create example configuration files
-
-3. **Added comprehensive tests**
-   - Created `tests/test_batch_processor.py` with unit tests for all functionality
-   - Tested configuration loading, validation, and processing
-   - Added tests for both sequential and parallel processing
-
-4. **Updated documentation**
-   - Added batch processing section to README.md
-   - Updated TASKS.md to mark EXT-2 as completed
-   - Updated this implementation plan to reflect the completed work
-
-The batch processing feature allows users to efficiently download content from multiple Substack authors in parallel, with customizable settings for each author. This is particularly useful for backing up or migrating content from multiple newsletters.
-
-### EXT-3: Date Filtering
-
-We have successfully implemented date filtering for posts (EXT-3):
-
-1. **Added CLI arguments for date filtering**
-   - Implemented `--start-date` and `--end-date` arguments in the CLI
-   - Added proper date parsing and validation
-   - Updated help documentation to explain the date format (YYYY-MM-DD)
-
-2. **Implemented filter logic in post discovery**
-   - Added a `_is_post_in_date_range` method to check if posts are within the specified date range
-   - Updated sitemap parsing to respect date filters using the `lastmod` element
-   - Added date filtering to the post download process
-
-3. **Added comprehensive tests**
-   - Created `tests/test_date_filtering.py` with unit tests for all functionality
-   - Tested date parsing, validation, and filtering logic
-   - Added tests for both sitemap-based and direct fetching methods
-
-4. **Updated documentation**
-   - Added date filtering section to README.md
-   - Updated command-line arguments table to include the new date filtering options
-   - Updated TASKS.md to mark EXT-3 as completed
-   - Updated this implementation plan to reflect the completed work
-
-The date filtering feature allows users to download only posts published within a specific date range, making it easier to archive or process posts from a particular time period.
-
 ## Documentation Updates
 
 For each implemented feature, we will update:
@@ -217,4 +200,4 @@ For each implemented feature, we will update:
 
 ## Conclusion
 
-By following this implementation plan, we will continue to make steady progress on the Substack to Markdown CLI tool, focusing on the most valuable features first while maintaining high code quality and comprehensive test coverage.
+By following this implementation plan, we will continue to make steady progress on the Substack to Markdown CLI tool, focusing on the most valuable features first while maintaining high code quality and comprehensive test coverage. The recent completion of custom templates and format conversion features represents significant progress toward a more flexible and powerful tool.

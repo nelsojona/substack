@@ -1,0 +1,24 @@
+authors:
+  - identifier: mattstoller
+    output_dir: output/mattstoller
+    max_posts: 10
+    include_comments: true
+    no_images: false
+    incremental: true
+    verbose: true
+  
+  - identifier: tradecompanion
+    max_posts: 5
+    include_comments: false
+    token: your-auth-token-here
+  
+  - identifier: big
+    max_concurrency: 10
+    max_image_concurrency: 20
+    include_comments: true
+
+global_settings:
+  min_delay: 1.0
+  max_delay: 5.0
+  max_concurrency: 5
+  max_image_concurrency: 10
