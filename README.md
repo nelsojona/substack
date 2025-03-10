@@ -683,8 +683,16 @@ The direct downloader script (`substack_direct_downloader.py`) includes several 
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+We welcome contributions to the Substack to Markdown CLI! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute.
+
+## Security
+
+If you discover a security vulnerability, please follow our [security policy](SECURITY.md).
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Changelog
+
+See the [CHANGELOG.md](CHANGELOG.md) file for details on changes between versions.
