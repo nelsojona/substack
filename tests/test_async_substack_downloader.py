@@ -11,11 +11,16 @@ from unittest.mock import patch, MagicMock, AsyncMock
 import aiohttp
 from bs4 import BeautifulSoup
 
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from tests.unittest_compat import IsolatedAsyncioTestCase
+
 from src.core.async_substack_downloader import AsyncSubstackDownloader
 from src.utils.adaptive_throttler import AsyncAdaptiveThrottler
 
 
-class TestAsyncSubstackDownloader(unittest.IsolatedAsyncioTestCase):
+class TestAsyncSubstackDownloader(IsolatedAsyncioTestCase):
     """Test cases for the AsyncSubstackDownloader class."""
     
     async def asyncSetUp(self):
