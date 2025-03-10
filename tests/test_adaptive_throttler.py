@@ -8,6 +8,11 @@ import asyncio
 import unittest
 from unittest.mock import patch, MagicMock
 
+try:
+    from unittest import IsolatedAsyncioTestCase
+except ImportError:
+    from tests.unittest_compat import IsolatedAsyncioTestCase
+
 from src.utils.adaptive_throttler import AdaptiveThrottler
 
 
@@ -99,7 +104,7 @@ class TestAdaptiveThrottler(unittest.TestCase):
         self.assertEqual(stats['max_delay'], 1.0)
 
 
-class TestAsyncAdaptiveThrottler(unittest.IsolatedAsyncioTestCase):
+class TestAsyncAdaptiveThrottler(IsolatedAsyncioTestCase):
     """Test cases for the async methods of AdaptiveThrottler."""
     
     async def asyncSetUp(self):
