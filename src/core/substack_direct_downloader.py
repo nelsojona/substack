@@ -37,12 +37,12 @@ import warnings
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 # Import performance optimization modules
-from adaptive_throttler import AsyncAdaptiveThrottler
-from cache_manager import CacheManager
-from connection_pool import ConnectionPool
-from database_manager import DatabaseManager
-from batch_image_downloader import BatchImageDownloader
-from incremental_sync import IncrementalSyncManager
+from src.utils.adaptive_throttler import AsyncAdaptiveThrottler
+from src.utils.cache_manager import CacheManager
+from src.utils.connection_pool import ConnectionPool
+from src.utils.database_manager import DatabaseManager
+from src.utils.batch_image_downloader import BatchImageDownloader
+from src.utils.incremental_sync import IncrementalSyncManager
 
 # Configure logging
 logging.basicConfig(

@@ -78,26 +78,32 @@ The Substack to Markdown tool provides a comprehensive command-line interface (C
 
 ### Basic Usage
 
-There are multiple scripts available with different capabilities:
-
-#### 1. Standard Converter
+The tool now provides a unified interface through the main.py script:
 
 ```bash
-python substack_to_md.py --author <author_identifier>
+python main.py [command] [options]
 ```
 
-#### 2. Direct Downloader (Recommended)
+Available commands:
+
+#### 1. Direct Downloader (Recommended)
 
 The direct downloader offers better performance and uses sitemap.xml for more reliable post discovery:
 
 ```bash
-python substack_direct_downloader.py --author <author_identifier>
+python main.py direct --author <author_identifier>
 ```
 
-#### 3. Optimized CLI
+#### 2. Optimized CLI
 
 ```bash
-python optimized_substack_cli.py download --author <author_identifier>
+python main.py optimized download --author <author_identifier>
+```
+
+#### 3. Classic Interface
+
+```bash
+python main.py classic --author <author_identifier>
 ```
 
 Where `<author_identifier>` is the Substack author's username or subdomain (e.g., "big" for "big.substack.com" which is Matt Stoller's BIG newsletter).
@@ -107,19 +113,19 @@ Where `<author_identifier>` is the Substack author's username or subdomain (e.g.
 The general command structure for the direct downloader:
 
 ```bash
-python substack_direct_downloader.py --author <author> [options]
+python main.py direct --author <author> [options]
 ```
 
 ### Common Usage Patterns
 
-The examples below use the recommended `substack_direct_downloader.py` script.
+The examples below use the recommended direct downloader command.
 
 #### 1. Basic Fetching
 
 Fetch all posts from a specific author and save them to the default output directory:
 
 ```bash
-python substack_direct_downloader.py --author big
+python main.py direct --author big
 ```
 
 #### 2. Specifying Output Location
@@ -127,7 +133,7 @@ python substack_direct_downloader.py --author big
 Save posts to a specific directory:
 
 ```bash
-python substack_direct_downloader.py --author big --output ./my_posts
+python main.py direct --author big --output ./my_posts
 ```
 
 #### 3. Limiting Post Count
@@ -135,7 +141,7 @@ python substack_direct_downloader.py --author big --output ./my_posts
 Fetch only the 5 most recent posts:
 
 ```bash
-python substack_direct_downloader.py --author big --max-posts 5
+python main.py direct --author big --max-posts 5
 ```
 
 #### 4. Detailed Output
@@ -143,7 +149,7 @@ python substack_direct_downloader.py --author big --max-posts 5
 Enable verbose mode to see detailed progress information:
 
 ```bash
-python substack_direct_downloader.py --author big --verbose
+python main.py direct --author big --verbose
 ```
 
 #### 5. Single Post Processing
@@ -151,7 +157,7 @@ python substack_direct_downloader.py --author big --verbose
 Process a specific post by its URL:
 
 ```bash
-python substack_direct_downloader.py --author big --url https://big.substack.com/p/how-to-get-rich-sabotaging-nuclear
+python main.py direct --author big --url https://big.substack.com/p/how-to-get-rich-sabotaging-nuclear
 ```
 
 #### 6. Using Sitemap for Efficient Post Discovery
@@ -159,7 +165,7 @@ python substack_direct_downloader.py --author big --url https://big.substack.com
 By default, the direct downloader uses sitemap.xml for efficient post discovery. You can disable this feature if needed:
 
 ```bash
-python substack_direct_downloader.py --author big --no-sitemap
+python main.py direct --author big --no-sitemap
 ```
 
 #### 7. Controlling Concurrency
@@ -167,7 +173,7 @@ python substack_direct_downloader.py --author big --no-sitemap
 Adjust the number of concurrent downloads for better performance:
 
 ```bash
-python substack_direct_downloader.py --author big --max-concurrency 10 --max-image-concurrency 20
+python main.py direct --author big --max-concurrency 10 --max-image-concurrency 20
 ```
 
 #### 8. Force Refresh
@@ -175,7 +181,7 @@ python substack_direct_downloader.py --author big --max-concurrency 10 --max-ima
 Force refresh existing posts:
 
 ```bash
-python substack_direct_downloader.py --author big --force
+python main.py direct --author big --force
 ```
 
 ### Handling Images
@@ -183,13 +189,13 @@ python substack_direct_downloader.py --author big --force
 By default, the direct downloader saves images locally. You can disable this:
 
 ```bash
-python substack_direct_downloader.py --author big --no-images
+python main.py direct --author big --no-images
 ```
 
 Control the number of concurrent image downloads:
 
 ```bash
-python substack_direct_downloader.py --author big --max-image-concurrency 15
+python main.py direct --author big --max-image-concurrency 15
 ```
 
 ### Including Comments
@@ -197,7 +203,7 @@ python substack_direct_downloader.py --author big --max-image-concurrency 15
 To include post comments in the Markdown output:
 
 ```bash
-python substack_direct_downloader.py --author big --include-comments
+python main.py direct --author big --include-comments
 ```
 
 This will add a "Comments" section at the end of each post with all comments and replies properly formatted.
@@ -207,7 +213,7 @@ This will add a "Comments" section at the end of each post with all comments and
 To access private/subscriber-only content with the direct downloader, you can use an authentication token:
 
 ```bash
-python substack_direct_downloader.py --author big --token your-auth-token --url https://big.substack.com/p/private-post-slug
+python main.py direct --author big --token your-auth-token --url https://big.substack.com/p/private-post-slug
 ```
 
 To obtain a Substack authentication token, you can use the provided script:
