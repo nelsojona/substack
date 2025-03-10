@@ -23,8 +23,8 @@ This tool allows you to easily download and convert Substack posts to Markdown f
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/substack-to-markdown.git
-cd substack-to-markdown
+git clone https://github.com/nelsojona/substack.git
+cd substack
 
 # Install dependencies
 pip install -r requirements.txt
