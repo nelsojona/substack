@@ -17,7 +17,7 @@ import http.cookiejar
 
 import requests
 # Import functions from substack_api modules
-from substack_api.newsletter import get_newsletter_post_metadata, get_post_contents
+from src.substack_api.newsletter import get_newsletter_post_metadata, get_post_contents
 
 # Import environment variable loader
 from src.utils.env_loader import load_env_vars, get_oxylabs_config

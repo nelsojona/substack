@@ -35,7 +35,7 @@ from urllib.parse import unquote
 # Add parent directory to path to import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from env_loader import load_env_vars, get_substack_auth, get_env_var
+from src.utils.env_loader import load_env_vars, get_substack_auth, get_env_var
 
 # Configure logging
 logging.basicConfig(
@@ -586,7 +586,7 @@ def extract_token_from_cookie_string(cookie_string: str) -> Optional[str]:
             cookie_part = cookie_part.strip()
             if cookie_part.startswith('substack.sid='):
                 token = cookie_part.split('substack.sid=')[1].strip()
-                return token
+                return unquote(token)
         
         # If not found in the direct format, check for URL encoded format
         match = re.search(r'substack\.sid=([^;]+)', cookie_string)

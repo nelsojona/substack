@@ -14,7 +14,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from substack_fetcher import SubstackFetcher
+from src.core.substack_fetcher import SubstackFetcher
 
 
 class TestSubstackFetcher(unittest.TestCase):
@@ -40,7 +40,7 @@ class TestSubstackFetcher(unittest.TestCase):
             }
         ]
 
-    @patch('substack_fetcher.Substack')
+    @patch('src.core.substack_fetcher.Substack')
     def test_init(self, mock_substack):
         """Test initialization of SubstackFetcher."""
         fetcher = SubstackFetcher(max_retries=5, retry_delay=3)
@@ -52,7 +52,7 @@ class TestSubstackFetcher(unittest.TestCase):
         self.assertEqual(fetcher.max_retries, 5)
         self.assertEqual(fetcher.retry_delay, 3)
 
-    @patch('substack_fetcher.SubstackFetcher._fetch_with_retry')
+    @patch('src.core.substack_fetcher.SubstackFetcher._fetch_with_retry')
     def test_fetch_posts_success(self, mock_fetch_with_retry):
         """Test successful fetching of posts."""
         # Set up mock to return all posts at once
@@ -73,7 +73,7 @@ class TestSubstackFetcher(unittest.TestCase):
         self.assertEqual(mock_fetch_with_retry.call_count, 1)
         mock_fetch_with_retry.assert_called_once_with('testauthor', 0, True)
 
-    @patch('substack_fetcher.SubstackFetcher._fetch_with_retry')
+    @patch('src.core.substack_fetcher.SubstackFetcher._fetch_with_retry')
     def test_fetch_posts_with_limit(self, mock_fetch_with_retry):
         """Test fetching posts with a limit."""
         # Set up mock
@@ -89,7 +89,7 @@ class TestSubstackFetcher(unittest.TestCase):
         # Assert that _fetch_with_retry was called correctly
         mock_fetch_with_retry.assert_called_once_with('testauthor', 0, True)
 
-    @patch('substack_fetcher.SubstackFetcher._fetch_with_retry')
+    @patch('src.core.substack_fetcher.SubstackFetcher._fetch_with_retry')
     def test_fetch_posts_empty(self, mock_fetch_with_retry):
         """Test fetching posts when no posts are available."""
         # Set up mock
@@ -104,7 +104,7 @@ class TestSubstackFetcher(unittest.TestCase):
         # Assert that _fetch_with_retry was called correctly
         mock_fetch_with_retry.assert_called_once_with('testauthor', 0, False)
 
-    @patch('substack_fetcher.SubstackFetcher._fetch_with_retry')
+    @patch('src.core.substack_fetcher.SubstackFetcher._fetch_with_retry')
     def test_fetch_posts_invalid_author(self, mock_fetch_with_retry):
         """Test fetching posts with an invalid author."""
         # Set up mock to raise ValueError
@@ -117,7 +117,7 @@ class TestSubstackFetcher(unittest.TestCase):
         # Assert that _fetch_with_retry was called correctly
         mock_fetch_with_retry.assert_called_once_with('invalidauthor', 0, False)
 
-    @patch('substack_fetcher.SubstackFetcher._fetch_with_retry')
+    @patch('src.core.substack_fetcher.SubstackFetcher._fetch_with_retry')
     def test_fetch_posts_rate_limit(self, mock_fetch_with_retry):
         """Test handling of rate limiting."""
         # Set up mock to simulate rate limiting then success
@@ -134,7 +134,7 @@ class TestSubstackFetcher(unittest.TestCase):
         # Assert that _fetch_with_retry was called correctly
         mock_fetch_with_retry.assert_called_once_with('testauthor', 0, True)
 
-    @patch('substack_fetcher.SubstackFetcher._fetch_with_retry')
+    @patch('src.core.substack_fetcher.SubstackFetcher._fetch_with_retry')
     def test_fetch_posts_connection_error(self, mock_fetch_with_retry):
         """Test handling of connection errors."""
         # Set up mock to simulate connection error handling
@@ -151,7 +151,7 @@ class TestSubstackFetcher(unittest.TestCase):
         # Assert that _fetch_with_retry was called correctly
         mock_fetch_with_retry.assert_called_once_with('testauthor', 0, True)
 
-    @patch('substack_fetcher.SubstackFetcher._fetch_with_retry')
+    @patch('src.core.substack_fetcher.SubstackFetcher._fetch_with_retry')
     def test_fetch_posts_max_retries_exceeded(self, mock_fetch_with_retry):
         """Test handling when max retries are exceeded."""
         # Set up mock to raise ConnectionError after max retries
