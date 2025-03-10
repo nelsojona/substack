@@ -45,6 +45,7 @@ from src.utils.batch_image_downloader import BatchImageDownloader
 from src.utils.incremental_sync import IncrementalSyncManager
 from src.utils.proxy_handler import OxylabsProxyHandler
 from src.utils.env_loader import get_oxylabs_config
+from src.utils.template_manager import TemplateManager
 
 # Configure logging
 logging.basicConfig(
@@ -87,6 +88,7 @@ class SubstackDirectDownloader:
         db (DatabaseManager): Database manager for metadata
         sync_manager (IncrementalSyncManager): Manager for incremental sync
         image_downloader (BatchImageDownloader): Downloader for batch image processing
+        template_manager (TemplateManager): Manager for custom Markdown templates
         session (aiohttp.ClientSession): HTTP session
         semaphore (asyncio.Semaphore): Semaphore for limiting concurrency
         auth_token (str): Authentication token for private content
@@ -111,7 +113,9 @@ class SubstackDirectDownloader:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         use_proxy: bool = False,
-        proxy_config: Optional[Dict[str, Any]] = None
+        proxy_config: Optional[Dict[str, Any]] = None,
+        template_dir: Optional[str] = None,
+        template_name: Optional[str] = None
     ):
         """
         Initialize the SubstackDirectDownloader.
@@ -133,6 +137,8 @@ class SubstackDirectDownloader:
             end_date (Optional[str], optional): End date for filtering posts (YYYY-MM-DD). Defaults to None.
             use_proxy (bool, optional): Whether to use a proxy. Defaults to False.
             proxy_config (Optional[Dict[str, Any]], optional): Proxy configuration. Defaults to None.
+            template_dir (Optional[str], optional): Directory containing custom Markdown templates. Defaults to None.
+            template_name (Optional[str], optional): Name of the template to use. Defaults to None.
         """
         self.author = author
         self.base_url = f"https://{author}.substack.com"
@@ -142,6 +148,7 @@ class SubstackDirectDownloader:
         self.incremental = incremental
         self.use_sitemap = use_sitemap
         self.include_comments = include_comments
+        self.template_name = template_name
         
         # Parse and store date filters
         self.start_date = None
@@ -217,6 +224,9 @@ class SubstackDirectDownloader:
             max_concurrency=max_image_concurrency,
             timeout=30
         )
+        
+        # Initialize TemplateManager
+        self.template_manager = TemplateManager(template_dir)
         
         # Initialize aiohttp session and semaphore
         self.session = None
@@ -1398,17 +1408,23 @@ class SubstackDirectDownloader:
                 else:
                     logger.info("No comments found")
             
-            # Generate markdown with frontmatter
-            markdown = f"""---
-title: "{title}"
-date: "{formatted_date}"
-original_url: "{url}"
----
-
-# {title}
-
-{content_markdown}
-{comments_markdown}"""
+            # Prepare post data for template
+            post_data = {
+                'title': title,
+                'date': formatted_date,
+                'author': metadata.get('author', self.author),
+                'url': url,
+                'content': content_markdown,
+                'comments': comments_markdown
+            }
+            
+            # Add any additional metadata fields
+            for key, value in metadata.items():
+                if key not in ['title', 'date', 'author', 'url', 'content_html']:
+                    post_data[key] = value
+            
+            # Apply template
+            markdown = self.template_manager.apply_template(self.template_name, post_data)
             
             # Generate filename
             filename = f"{formatted_date}_{slug}.md"
@@ -1457,6 +1473,8 @@ async def main():
     parser.add_argument('--include-comments', action='store_true', help='Include comments in the output')
     parser.add_argument('--start-date', type=str, help='Start date for filtering posts (YYYY-MM-DD)')
     parser.add_argument('--end-date', type=str, help='End date for filtering posts (YYYY-MM-DD)')
+    parser.add_argument('--template-dir', type=str, help='Directory containing custom Markdown templates')
+    parser.add_argument('--template', type=str, help='Name of the template to use')
     
     # Proxy arguments
     proxy_group = parser.add_argument_group('Proxy options (for using Oxylabs)')
@@ -1509,7 +1527,9 @@ async def main():
         start_date=args.start_date,
         end_date=args.end_date,
         use_proxy=args.use_proxy,
-        proxy_config=proxy_config
+        proxy_config=proxy_config,
+        template_dir=args.template_dir,
+        template_name=args.template
     ) as downloader:
         # Set authentication token if provided
         if args.token:

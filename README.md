@@ -512,12 +512,90 @@ The tool includes robust error handling for:
 - Post retrieval errors
 - Authentication failures
 
-## Future Enhancements
+## Custom Markdown Templates
 
-Planned future enhancements include:
+The tool now supports custom Markdown templates for post conversion. This allows you to customize the format and structure of the generated Markdown files.
 
-- Custom Markdown templates
-- Export to other formats (e.g., PDF, HTML)
+### Creating Templates
+
+You can create custom templates using the `template` command:
+
+```bash
+python main.py template --create-examples --output-dir templates
+```
+
+This will create example templates in the specified directory:
+
+- `basic.template`: A simple template with title, content, and comments
+- `academic.template`: A template formatted for academic citations
+- `blog.template`: A template with HTML formatting for blog posts
+
+### Using Templates
+
+To use a custom template when downloading posts:
+
+```bash
+python main.py direct --author big --template-dir templates --template basic
+```
+
+This will use the `basic` template from the `templates` directory for all downloaded posts.
+
+### Template Format
+
+Templates use the Python string.Template format with the following variables:
+
+- `${title}`: Post title
+- `${date}`: Publication date
+- `${author}`: Author name
+- `${url}`: Original post URL
+- `${content}`: Post content in Markdown format
+- `${comments}`: Post comments in Markdown format (if included)
+- `${additional_frontmatter}`: Additional metadata fields
+
+## Export to Other Formats
+
+The tool now supports exporting Markdown files to other formats using the `convert` command:
+
+```bash
+python main.py convert --input output/big --format html --output-dir converted
+```
+
+### Supported Formats
+
+- `html`: Export to HTML format
+- `pdf`: Export to PDF format
+- `epub`: Export to EPUB format
+
+### Conversion Options
+
+```bash
+python main.py convert --input output/big/2023-01-01_post-slug.md --format pdf --title "Custom Title" --author "Custom Author" --css custom.css
+```
+
+Available options:
+
+- `--input`: Input Markdown file or directory
+- `--format`: Output format (html, pdf, epub)
+- `--output-dir`: Output directory
+- `--recursive`: Process directories recursively
+- `--title`: Title for the output document
+- `--author`: Author name for the output document
+- `--css`: Path to CSS file for styling HTML and PDF output
+- `--cover-image`: Path to cover image for EPUB output
+- `--check-deps`: Check for required dependencies
+
+### Dependencies
+
+The format conversion feature requires the following external dependencies:
+
+- [Pandoc](https://pandoc.org/installing.html): For converting Markdown to other formats
+- [wkhtmltopdf](https://wkhtmltopdf.org/downloads.html): For PDF generation
+
+You can check if these dependencies are installed:
+
+```bash
+python main.py convert --check-deps --input dummy --format html
+```
 
 ## Using Proxies
 
