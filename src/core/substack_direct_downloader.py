@@ -43,6 +43,8 @@ from src.utils.connection_pool import ConnectionPool
 from src.utils.database_manager import DatabaseManager
 from src.utils.batch_image_downloader import BatchImageDownloader
 from src.utils.incremental_sync import IncrementalSyncManager
+from src.utils.proxy_handler import OxylabsProxyHandler
+from src.utils.env_loader import get_oxylabs_config
 
 # Configure logging
 logging.basicConfig(
@@ -107,7 +109,9 @@ class SubstackDirectDownloader:
         use_sitemap: bool = True,
         include_comments: bool = False,
         start_date: Optional[str] = None,
-        end_date: Optional[str] = None
+        end_date: Optional[str] = None,
+        use_proxy: bool = False,
+        proxy_config: Optional[Dict[str, Any]] = None
     ):
         """
         Initialize the SubstackDirectDownloader.
@@ -127,6 +131,8 @@ class SubstackDirectDownloader:
             include_comments (bool): Whether to include comments in the output. Defaults to False.
             start_date (Optional[str], optional): Start date for filtering posts (YYYY-MM-DD). Defaults to None.
             end_date (Optional[str], optional): End date for filtering posts (YYYY-MM-DD). Defaults to None.
+            use_proxy (bool, optional): Whether to use a proxy. Defaults to False.
+            proxy_config (Optional[Dict[str, Any]], optional): Proxy configuration. Defaults to None.
         """
         self.author = author
         self.base_url = f"https://{author}.substack.com"
@@ -168,12 +174,28 @@ class SubstackDirectDownloader:
         # Initialize AsyncAdaptiveThrottler
         self.throttler = AsyncAdaptiveThrottler(min_delay=min_delay, max_delay=max_delay)
         
-        # Initialize ConnectionPool
+        # Initialize ConnectionPool with proxy if enabled
+        self.use_proxy = use_proxy
+        self.proxy_config = proxy_config
+        
+        # If proxy is enabled but no config provided, try to load from environment
+        if use_proxy and not proxy_config:
+            self.proxy_config = get_oxylabs_config()
+            if not self.proxy_config.get('username') or not self.proxy_config.get('password'):
+                logger.warning("Proxy enabled but no valid configuration provided. Disabling proxy.")
+                self.use_proxy = False
+                self.proxy_config = None
+        
         self.connection_pool = ConnectionPool(
             max_connections=max_concurrency,
             timeout=30,
-            keep_alive=True
+            keep_alive=True,
+            use_proxy=self.use_proxy,
+            proxy_config=self.proxy_config
         )
+        
+        if self.use_proxy and self.proxy_config:
+            logger.info(f"Using Oxylabs proxy for requests with country: {self.proxy_config.get('country_code', 'default')}")
         
         # Initialize CacheManager
         cache_db_path = os.path.join(self.output_dir, "cache.db")
@@ -1436,7 +1458,39 @@ async def main():
     parser.add_argument('--start-date', type=str, help='Start date for filtering posts (YYYY-MM-DD)')
     parser.add_argument('--end-date', type=str, help='End date for filtering posts (YYYY-MM-DD)')
     
+    # Proxy arguments
+    proxy_group = parser.add_argument_group('Proxy options (for using Oxylabs)')
+    proxy_group.add_argument('--use-proxy', action='store_true', help='Use Oxylabs proxy for requests')
+    proxy_group.add_argument('--proxy-username', help='Oxylabs username')
+    proxy_group.add_argument('--proxy-password', help='Oxylabs password')
+    proxy_group.add_argument('--proxy-country', help='Country code for proxy (e.g., US, GB, DE)')
+    proxy_group.add_argument('--proxy-city', help='City name for proxy (e.g., london, new_york)')
+    proxy_group.add_argument('--proxy-state', help='US state for proxy (e.g., us_california, us_new_york)')
+    proxy_group.add_argument('--proxy-session-id', help='Session ID to maintain the same IP across requests')
+    proxy_group.add_argument('--proxy-session-time', type=int, help='Session time in minutes (max 30)')
+    
     args = parser.parse_args()
+    
+    # Set up proxy configuration if enabled
+    proxy_config = None
+    if args.use_proxy:
+        if args.proxy_username and args.proxy_password:
+            proxy_config = {
+                'username': args.proxy_username,
+                'password': args.proxy_password,
+                'country_code': args.proxy_country,
+                'city': args.proxy_city,
+                'state': args.proxy_state,
+                'session_id': args.proxy_session_id,
+                'session_time': args.proxy_session_time
+            }
+        else:
+            # Try to load from environment variables
+            from src.utils.env_loader import get_oxylabs_config
+            proxy_config = get_oxylabs_config()
+            if not proxy_config.get('username') or not proxy_config.get('password'):
+                logger.error("Proxy username and password are required when using a proxy")
+                return 1
     
     # Create downloader instance
     async with SubstackDirectDownloader(
@@ -1453,7 +1507,9 @@ async def main():
         use_sitemap=not args.no_sitemap,
         include_comments=args.include_comments,
         start_date=args.start_date,
-        end_date=args.end_date
+        end_date=args.end_date,
+        use_proxy=args.use_proxy,
+        proxy_config=proxy_config
     ) as downloader:
         # Set authentication token if provided
         if args.token:

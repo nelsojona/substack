@@ -33,13 +33,7 @@ Based on the TASKS.md file, all the INT tasks (INT-1 through INT-8) have been co
 
 For the next sprint, we recommend focusing on the following tasks in order of priority:
 
-1. **EXT-6: Integrate with Oxylabs for proxying requests** (Medium priority, 1d effort)
-   - Implement proxy configuration via environment variables
-   - Add proxy support to connection pool
-   - Create proxy rotation mechanism
-   - Add documentation for proxy setup
-
-2. **EXT-1: Add support for custom Markdown templates** (Low priority, 1d effort)
+1. **EXT-1: Add support for custom Markdown templates** (Low priority, 1d effort)
    - Design template format with variables for post metadata
    - Implement template loading and parsing
    - Add CLI option for specifying template file
@@ -78,9 +72,9 @@ Based on the implementation experience so far, we recommend the following techni
 ## Timeline
 
 - March 10: Completed EXT-3 (Filtering posts by date range)
-- March 15-17: Implement EXT-6 (Oxylabs integration)
-- March 18-21: Implement EXT-1 (Custom Markdown templates)
-- March 22-29: Begin work on EXT-4 (Export to other formats)
+- March 10: Completed EXT-6 (Oxylabs integration)
+- March 15-18: Implement EXT-1 (Custom Markdown templates)
+- March 19-26: Begin work on EXT-4 (Export to other formats)
 
 ## Dependencies and Blockers
 
@@ -114,6 +108,41 @@ For each new feature, we will continue to follow the comprehensive testing appro
    - Test concurrency handling
 
 ## Completed Implementations
+
+### EXT-6: Oxylabs Integration
+
+We have successfully implemented Oxylabs proxy integration (EXT-6):
+
+1. **Created a proxy handler module**
+   - Implemented `src/utils/proxy_handler.py` with the `OxylabsProxyHandler` class
+   - Added support for all Oxylabs proxy configuration options (country, city, state, session)
+   - Implemented methods for different proxy usage scenarios (urllib, requests, aiohttp)
+
+2. **Added proxy support to connection pool**
+   - Updated `src/utils/connection_pool.py` to support proxy configuration
+   - Integrated proxy with aiohttp sessions
+   - Added proxy support to the OptimizedHttpClient class
+
+3. **Integrated with environment variables**
+   - Leveraged existing `env_loader.py` module for loading proxy configuration
+   - Added fallback to environment variables when proxy config is not provided directly
+
+4. **Updated the downloader class**
+   - Modified `SubstackDirectDownloader` to support proxy configuration
+   - Added proxy-related command-line arguments
+   - Implemented validation and fallback mechanisms for proxy configuration
+
+5. **Added comprehensive tests**
+   - Created `tests/test_proxy_handler.py` with unit tests for all functionality
+   - Tested proxy URL building with various configuration options
+   - Added tests for integration with connection pool and downloader
+   - Implemented tests for environment variable integration
+
+6. **Updated documentation**
+   - Updated TASKS.md to mark EXT-6 as completed
+   - Updated this implementation plan to reflect the completed work
+
+The Oxylabs proxy integration allows users to route requests through different IP addresses, which helps avoid rate limiting and access geo-restricted content. The implementation supports all Oxylabs proxy features including country/city selection, session persistence, and configuration via environment variables.
 
 ### EXT-2: Batch Processing
 

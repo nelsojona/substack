@@ -304,6 +304,19 @@ This will guide you through the process of obtaining an authentication token fro
 | `--save-cookies` | Save cookies to a file after authentication | No | - |
 | `--private` | Indicate that the post is private and requires authentication | No | False |
 
+### Proxy Arguments
+
+| Argument | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `--use-proxy` | Use Oxylabs proxy for requests | No | False |
+| `--proxy-username` | Oxylabs username | No | - |
+| `--proxy-password` | Oxylabs password | No | - |
+| `--proxy-country` | Country code for proxy (e.g., US, GB, DE) | No | - |
+| `--proxy-city` | City name for proxy (e.g., london, new_york) | No | - |
+| `--proxy-state` | US state for proxy (e.g., us_california, us_new_york) | No | - |
+| `--proxy-session-id` | Session ID to maintain the same IP across requests | No | - |
+| `--proxy-session-time` | Session time in minutes (max 30) | No | - |
+
 ### Image Downloading Arguments
 
 | Argument | Description | Required | Default |
@@ -420,6 +433,7 @@ Each author in the configuration can have the following options:
 - Offers incremental sync to efficiently update content
 - Implements robust error handling and recovery mechanisms
 - Supports batch processing of multiple authors in parallel
+- Provides proxy support for avoiding rate limits and accessing geo-restricted content
 
 ## Enhanced Mode
 
@@ -504,7 +518,77 @@ Planned future enhancements include:
 
 - Custom Markdown templates
 - Export to other formats (e.g., PDF, HTML)
-- Integration with Oxylabs for proxying requests to avoid rate limiting
+
+## Using Proxies
+
+The tool supports using Oxylabs proxy service to route requests through different IP addresses. This can help avoid rate limiting and access geo-restricted content.
+
+### Basic Proxy Usage
+
+To use a proxy with the direct downloader:
+
+```bash
+python main.py direct --author big --use-proxy --proxy-username your-username --proxy-password your-password
+```
+
+### Proxy Configuration Options
+
+You can configure various aspects of the proxy:
+
+```bash
+# Using a specific country
+python main.py direct --author big --use-proxy --proxy-username your-username --proxy-password your-password --proxy-country US
+
+# Using a specific city
+python main.py direct --author big --use-proxy --proxy-username your-username --proxy-password your-password --proxy-country GB --proxy-city london
+
+# Using a session ID to maintain the same IP
+python main.py direct --author big --use-proxy --proxy-username your-username --proxy-password your-password --proxy-session-id abc12345
+
+# Setting a session time
+python main.py direct --author big --use-proxy --proxy-username your-username --proxy-password your-password --proxy-session-id abc12345 --proxy-session-time 10
+```
+
+### Environment Variables for Proxy
+
+You can also configure the proxy using environment variables in your `.env` file:
+
+```
+OXYLABS_USERNAME=your-username
+OXYLABS_PASSWORD=your-password
+OXYLABS_COUNTRY=US
+OXYLABS_CITY=new_york
+OXYLABS_STATE=us_new_york
+OXYLABS_SESSION_ID=random-session-id
+OXYLABS_SESSION_TIME=10
+```
+
+Then use the proxy without specifying credentials on the command line:
+
+```bash
+python main.py direct --author big --use-proxy
+```
+
+### Batch Processing with Proxies
+
+You can also configure proxies in your batch configuration file:
+
+```json
+{
+  "authors": [
+    {
+      "identifier": "mattstoller",
+      "use_proxy": true,
+      "proxy_country": "US"
+    }
+  ],
+  "global_settings": {
+    "use_proxy": true,
+    "proxy_username": "your-username",
+    "proxy_password": "your-password"
+  }
+}
+```
 
 ## Performance Optimizations
 

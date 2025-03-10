@@ -4,7 +4,7 @@ Connection Pool Module
 
 This module provides connection pooling functionality for HTTP requests.
 It configures aiohttp.ClientSession with connection pooling, reuses sessions across requests,
-and optimizes keep-alive settings.
+and optimizes keep-alive settings. It also supports proxy integration, particularly with Oxylabs.
 """
 
 import os
@@ -16,6 +16,8 @@ from contextlib import asynccontextmanager
 
 import aiohttp
 from aiohttp import ClientSession, TCPConnector, ClientTimeout
+
+from src.utils.proxy_handler import OxylabsProxyHandler
 
 # Configure logging
 logging.basicConfig(
@@ -42,7 +44,9 @@ class ConnectionPool:
         max_connections: int = 100,
         max_connections_per_host: int = 10,
         timeout: int = 30,
-        keep_alive: int = 120
+        keep_alive: int = 120,
+        use_proxy: bool = False,
+        proxy_config: Optional[Dict[str, Any]] = None
     ):
         """
         Initialize the ConnectionPool.
@@ -56,12 +60,30 @@ class ConnectionPool:
                                    Defaults to 30.
             keep_alive (int, optional): Keep-alive timeout in seconds. 
                                       Defaults to 120.
+            use_proxy (bool, optional): Whether to use a proxy. Defaults to False.
+            proxy_config (Optional[Dict[str, Any]], optional): Proxy configuration. Defaults to None.
         """
         self.max_connections = max_connections
         self.max_connections_per_host = max_connections_per_host
         self.timeout = timeout
         self.keep_alive = keep_alive
         self.sessions: Dict[str, ClientSession] = {}
+        
+        # Set up proxy if enabled
+        self.use_proxy = use_proxy
+        self.proxy_handler = None
+        
+        if use_proxy and proxy_config:
+            self.proxy_handler = OxylabsProxyHandler(
+                username=proxy_config.get('username', ''),
+                password=proxy_config.get('password', ''),
+                country_code=proxy_config.get('country_code'),
+                city=proxy_config.get('city'),
+                state=proxy_config.get('state'),
+                session_id=proxy_config.get('session_id'),
+                session_time=proxy_config.get('session_time')
+            )
+            logger.info("Using Oxylabs proxy for connections")
         
         # List of common user agents to rotate
         self.user_agents = [
@@ -116,6 +138,12 @@ class ConnectionPool:
                 keepalive_timeout=self.keep_alive
             )
             
+            # Set up proxy if enabled
+            proxy = None
+            if self.use_proxy and self.proxy_handler:
+                proxy = self.proxy_handler.get_aiohttp_proxy()
+                logger.info(f"Using proxy for session {name}")
+            
             # Set default headers if not provided
             if headers is None:
                 headers = {}
@@ -129,7 +157,8 @@ class ConnectionPool:
                 connector=connector,
                 headers=headers,
                 cookies=cookies,
-                timeout=ClientTimeout(total=timeout or self.timeout)
+                timeout=ClientTimeout(total=timeout or self.timeout),
+                proxy=proxy
             )
             
             # Store the session
@@ -293,6 +322,7 @@ class OptimizedHttpClient:
         default_headers (Dict[str, str]): Default headers to include in requests.
         default_timeout (int): Default timeout for requests in seconds.
         session (Optional[ClientSession]): The current session.
+        use_proxy (bool): Whether to use a proxy.
     """
     
     def __init__(
@@ -300,7 +330,8 @@ class OptimizedHttpClient:
         pool: ConnectionPool,
         session_name: str,
         headers: Optional[Dict[str, str]] = None,
-        timeout: int = 30
+        timeout: int = 30,
+        use_proxy: Optional[bool] = None
     ):
         """
         Initialize the OptimizedHttpClient.
@@ -312,12 +343,17 @@ class OptimizedHttpClient:
                                                         Defaults to None.
             timeout (int, optional): Default timeout for requests in seconds. 
                                    Defaults to 30.
+            use_proxy (Optional[bool], optional): Whether to use a proxy. 
+                                               Defaults to None (use pool's setting).
         """
         self.pool = pool
         self.session_name = session_name
         self.default_headers = headers or {}
         self.default_timeout = timeout
         self.session = None
+        
+        # Use the pool's proxy setting if not specified
+        self.use_proxy = use_proxy if use_proxy is not None else pool.use_proxy
     
     async def __aenter__(self):
         """Async context manager entry."""
@@ -430,12 +466,26 @@ async def main():
     # Set up logging
     logging.getLogger().setLevel(logging.DEBUG)
     
-    # Create a connection pool
+    # Create a connection pool without proxy
     pool = ConnectionPool(
         max_connections=100,
         max_connections_per_host=10,
         timeout=30,
         keep_alive=120
+    )
+    
+    # Create a connection pool with proxy
+    proxy_pool = ConnectionPool(
+        max_connections=100,
+        max_connections_per_host=10,
+        timeout=30,
+        keep_alive=120,
+        use_proxy=True,
+        proxy_config={
+            'username': 'your-username',
+            'password': 'your-password',
+            'country_code': 'US'
+        }
     )
     
     # Use the pool to make requests
