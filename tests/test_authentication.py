@@ -15,7 +15,7 @@ import json
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from substack_fetcher import SubstackFetcher
+from src.core.substack_fetcher import SubstackFetcher
 
 
 class TestAuthentication(unittest.TestCase):
@@ -59,7 +59,7 @@ class TestAuthentication(unittest.TestCase):
         shutil.rmtree(self.temp_dir)
 
     @patch('requests.Session.post')
-    @patch('substack_fetcher.SubstackFetcher._verify_authentication')
+    @patch('src.core.substack_fetcher.SubstackFetcher._verify_authentication')
     def test_authenticate_with_email_password(self, mock_verify, mock_post):
         """Test authentication with email and password."""
         # Set up mocks
@@ -87,7 +87,7 @@ class TestAuthentication(unittest.TestCase):
         self.assertEqual(kwargs["json"]["password"], self.password)
 
     @patch('requests.Session.post')
-    @patch('substack_fetcher.SubstackFetcher._verify_authentication')
+    @patch('src.core.substack_fetcher.SubstackFetcher._verify_authentication')
     def test_authenticate_with_email_password_failure(self, mock_verify, mock_post):
         """Test authentication failure with email and password."""
         # Set up mocks
@@ -106,7 +106,7 @@ class TestAuthentication(unittest.TestCase):
         self.assertEqual(self.fetcher.auth_token, "")
         self.assertFalse(self.fetcher.is_authenticated)
 
-    @patch('substack_fetcher.SubstackFetcher._verify_authentication')
+    @patch('src.core.substack_fetcher.SubstackFetcher._verify_authentication')
     def test_authenticate_with_token(self, mock_verify):
         """Test authentication with token."""
         # Set up mock
@@ -125,7 +125,7 @@ class TestAuthentication(unittest.TestCase):
         # Assert that the headers were updated
         self.assertEqual(self.fetcher.session.headers["Authorization"], f"Bearer {self.token}")
 
-    @patch('substack_fetcher.SubstackFetcher._verify_authentication')
+    @patch('src.core.substack_fetcher.SubstackFetcher._verify_authentication')
     def test_authenticate_with_cookies(self, mock_verify):
         """Test authentication with cookies dictionary."""
         # Set up mock
@@ -147,7 +147,7 @@ class TestAuthentication(unittest.TestCase):
 
     @patch('os.path.exists')
     @patch('http.cookiejar.MozillaCookieJar')
-    @patch('substack_fetcher.SubstackFetcher._verify_authentication')
+    @patch('src.core.substack_fetcher.SubstackFetcher._verify_authentication')
     def test_authenticate_with_cookies_file(self, mock_verify, mock_cookie_jar, mock_exists):
         """Test authentication with cookies file."""
         # Set up mocks

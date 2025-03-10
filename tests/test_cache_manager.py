@@ -10,7 +10,7 @@ import tempfile
 import hashlib
 from unittest.mock import patch, MagicMock
 
-from cache_manager import CacheManager
+from src.utils.cache_manager import CacheManager
 
 
 class TestCacheManager(unittest.TestCase):

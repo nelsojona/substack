@@ -11,7 +11,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 import aiohttp
 from bs4 import BeautifulSoup
 
-from batch_image_downloader import BatchImageDownloader
+from src.utils.batch_image_downloader import BatchImageDownloader
 
 
 class TestBatchImageDownloader(unittest.IsolatedAsyncioTestCase):
