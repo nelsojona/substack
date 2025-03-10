@@ -11,8 +11,8 @@ from unittest.mock import patch, MagicMock, AsyncMock
 import aiohttp
 from bs4 import BeautifulSoup
 
-from async_substack_downloader import AsyncSubstackDownloader
-from adaptive_throttler import AsyncAdaptiveThrottler
+from src.core.async_substack_downloader import AsyncSubstackDownloader
+from src.utils.adaptive_throttler import AsyncAdaptiveThrottler
 
 
 class TestAsyncSubstackDownloader(unittest.IsolatedAsyncioTestCase):
@@ -264,7 +264,7 @@ class TestAsyncSubstackDownloader(unittest.IsolatedAsyncioTestCase):
         self.downloader._fetch_url = AsyncMock(return_value=html)
         
         # Mock the MarkdownConverter
-        with patch('markdown_converter.MarkdownConverter.convert_html_to_markdown', return_value="# Test Post\n\nThis is a test post."):
+        with patch('src.utils.markdown_converter.MarkdownConverter.convert_html_to_markdown', return_value="# Test Post\n\nThis is a test post."):
             # Download the post
             result = await self.downloader.download_post("https://test_author.substack.com/p/test-post")
             
@@ -304,7 +304,7 @@ class TestAsyncSubstackDownloader(unittest.IsolatedAsyncioTestCase):
         self.downloader.extract_post_metadata = AsyncMock()
         
         # Mock the MarkdownConverter
-        with patch('markdown_converter.MarkdownConverter.convert_html_to_markdown', return_value="# Direct Method Test\n\nThis is a direct method test."):
+        with patch('src.utils.markdown_converter.MarkdownConverter.convert_html_to_markdown', return_value="# Direct Method Test\n\nThis is a direct method test."):
             # Download the post with direct method
             result = await self.downloader.download_post(
                 "https://test_author.substack.com/p/direct-test",

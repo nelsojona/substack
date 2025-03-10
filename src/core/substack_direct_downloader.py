@@ -1145,6 +1145,11 @@ class SubstackDirectDownloader:
         # Create a map of comments by ID for quick lookup
         comment_map = {comment['id']: comment for comment in comments if 'id' in comment}
         
+        # Ensure all comments have a 'replies' key
+        for comment in comments:
+            if 'id' in comment and 'replies' not in comment:
+                comment['replies'] = []
+        
         # Organize into tree structure
         top_level_comments = []
         
