@@ -22,8 +22,8 @@ from threading import Thread
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import Pool
 
-from adaptive_throttler import AdaptiveThrottler
-from markdown_converter import MarkdownConverter
+from src.utils.adaptive_throttler import AdaptiveThrottler
+from src.utils.markdown_converter import MarkdownConverter
 
 # Configure logging
 logging.basicConfig(
