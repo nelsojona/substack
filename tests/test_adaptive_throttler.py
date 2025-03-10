@@ -8,7 +8,7 @@ import asyncio
 import unittest
 from unittest.mock import patch, MagicMock
 
-from adaptive_throttler import AdaptiveThrottler
+from src.utils.adaptive_throttler import AdaptiveThrottler
 
 
 class TestAdaptiveThrottler(unittest.TestCase):

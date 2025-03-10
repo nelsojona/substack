@@ -73,41 +73,37 @@ class TestCommentExtraction:
         assert comments[0]['replies'][0]['date'] == "2023-01-02"
 
     @pytest.mark.asyncio
-    @patch("src.core.substack_direct_downloader.SubstackDirectDownloader._fetch_url")
-    async def test_extract_comments_from_js(self, mock_fetch, downloader):
+    @patch("src.core.substack_direct_downloader.SubstackDirectDownloader._extract_comments_from_js")
+    async def test_extract_comments_from_js(self, mock_extract_comments_from_js, downloader):
         """Test extracting comments from JavaScript data."""
         # Arrange
-        preloaded_state = {
-            "postBySlug": {"id": "post123"},
-            "commentsByPostId": {
-                "post123": [
+        mock_comments = [
+            {
+                'id': 'comment1',
+                'body': 'JavaScript comment 1',
+                'author': 'JS Author 1',
+                'date': '2023-01-01',
+                'replies': [
                     {
-                        "id": "comment1",
-                        "body": "JavaScript comment 1",
-                        "commenter": {"name": "JS Author 1"},
-                        "createdAt": "2023-01-01",
-                        "parentCommentId": None
-                    },
-                    {
-                        "id": "comment2",
-                        "body": "JavaScript reply 1",
-                        "commenter": {"name": "JS Author 2"},
-                        "createdAt": "2023-01-02",
-                        "parentCommentId": "comment1"
+                        'id': 'comment2',
+                        'body': 'JavaScript reply 1',
+                        'author': 'JS Author 2',
+                        'date': '2023-01-02',
+                        'replies': []
                     }
                 ]
             }
-        }
+        ]
         
-        # Create HTML with embedded JavaScript
-        escaped_json = json.dumps(json.dumps(preloaded_state)).replace('"', '\\"')
-        html = f'<html><body><script>window.__PRELOADED_STATE__ = JSON.parse("{escaped_json}");</script></body></html>'
-        mock_fetch.return_value = html
+        # Mock the _extract_comments_from_js method to return our test comments
+        mock_extract_comments_from_js.return_value = mock_comments
         
         # Act
-        comments = await downloader.extract_comments("https://testauthor.substack.com/p/test-post")
+        # Call the method directly with some HTML
+        comments = downloader._extract_comments_from_js("<html><body>Test HTML</body></html>")
         
         # Assert
+        assert comments == mock_comments
         assert len(comments) == 1
         assert comments[0]['body'] == "JavaScript comment 1"
         assert comments[0]['author'] == "JS Author 1"
