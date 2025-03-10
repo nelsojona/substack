@@ -65,6 +65,7 @@ jobs:
         pip install yarl==1.9.2
         pip install redis==4.6.0
         pip install sqlalchemy==2.0.20
+        pip install PyYAML==6.0.1  # Required for batch_processor.py tests
         
         # Testing dependencies
         pip install pytest-asyncio==0.21.1
