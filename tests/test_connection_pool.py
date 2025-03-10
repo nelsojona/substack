@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 import aiohttp
 from aiohttp import ClientSession, TCPConnector, ClientTimeout
 
-from connection_pool import ConnectionPool, OptimizedHttpClient
+from src.utils.connection_pool import ConnectionPool, OptimizedHttpClient
 
 
 class TestConnectionPool(unittest.IsolatedAsyncioTestCase):
