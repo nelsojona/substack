@@ -16,7 +16,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import substack_to_md
+from src.core import substack_to_md
 
 
 class TestCLI(unittest.TestCase):
@@ -143,8 +143,8 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(args.slug, 'test-post')
             self.assertIsNone(args.url)
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_main_exit_codes(self, mock_converter_class, mock_fetcher_class):
         """Test exit codes for different scenarios."""
         # Set up mocks
@@ -187,8 +187,8 @@ class TestCLI(unittest.TestCase):
             exit_code = substack_to_md.main()
             self.assertEqual(exit_code, 1)
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_output_directory_creation(self, mock_converter_class, mock_fetcher_class):
         """Test creation of output directory if it doesn't exist."""
         # Set up mocks
@@ -215,8 +215,8 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertTrue(os.path.exists(nested_dir))
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_limit_parameter(self, mock_converter_class, mock_fetcher_class):
         """Test the limit parameter for fetching posts."""
         # Set up mocks
@@ -250,8 +250,8 @@ class TestCLI(unittest.TestCase):
             files = os.listdir(self.temp_dir)
             self.assertEqual(len(files), 1)
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_verbose_output(self, mock_converter_class, mock_fetcher_class):
         """Test verbose output mode."""
         # Set up mocks

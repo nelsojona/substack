@@ -17,9 +17,9 @@ import requests
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import substack_to_md
-from substack_fetcher import SubstackFetcher
-from markdown_converter import MarkdownConverter
+from src.core import substack_to_md
+from src.core.substack_fetcher import SubstackFetcher
+from src.utils.markdown_converter import MarkdownConverter
 
 
 class TestErrorHandling(unittest.TestCase):
@@ -42,7 +42,7 @@ class TestErrorHandling(unittest.TestCase):
         # Remove the temporary directory and its contents
         shutil.rmtree(self.temp_dir)
 
-    @patch('substack_fetcher.Substack')
+    @patch('src.core.substack_fetcher.Substack')
     def test_api_404_error(self, mock_substack):
         """Test handling of 404 API errors."""
         # Set up mock to raise 404 error
@@ -59,8 +59,8 @@ class TestErrorHandling(unittest.TestCase):
         with self.assertRaises(ValueError):
             fetcher.fetch_posts('invalidauthor')
 
-    @patch('substack_fetcher.Substack')
-    @patch('substack_fetcher.time.sleep')
+    @patch('src.core.substack_fetcher.Substack')
+    @patch('src.core.substack_fetcher.time.sleep')
     def test_api_rate_limit(self, mock_sleep, mock_substack):
         """Test handling of rate limiting."""
         # Set up mock to raise 429 error then succeed
@@ -81,8 +81,8 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that sleep was called for rate limiting
         mock_sleep.assert_called_once()
 
-    @patch('substack_fetcher.Substack')
-    @patch('substack_fetcher.time.sleep')
+    @patch('src.core.substack_fetcher.Substack')
+    @patch('src.core.substack_fetcher.time.sleep')
     def test_api_connection_error(self, mock_sleep, mock_substack):
         """Test handling of connection errors."""
         # Set up mock to raise connection error then succeed
@@ -103,8 +103,8 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that sleep was called for retry
         mock_sleep.assert_called_once()
 
-    @patch('substack_fetcher.Substack')
-    @patch('substack_fetcher.time.sleep')
+    @patch('src.core.substack_fetcher.Substack')
+    @patch('src.core.substack_fetcher.time.sleep')
     def test_api_max_retries_exceeded(self, mock_sleep, mock_substack):
         """Test handling when max retries are exceeded."""
         # Set up mock to always raise connection error
@@ -130,7 +130,7 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns None
         self.assertIsNone(result)
 
-    @patch('markdown_converter.md')
+    @patch('src.utils.markdown_converter.md')
     def test_markdown_conversion_exception(self, mock_md):
         """Test handling of exceptions during conversion."""
         # Set up mock to raise an exception
@@ -143,7 +143,7 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns None
         self.assertIsNone(result)
 
-    @patch('substack_to_md.open', new_callable=mock_open)
+    @patch('src.core.substack_to_md.open', new_callable=mock_open)
     def test_file_system_error(self, mock_file):
         """Test handling of file system errors."""
         # Set up mock to raise an OSError
@@ -177,8 +177,8 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns False
         self.assertFalse(result)
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_process_posts_empty(self, mock_converter_class, mock_fetcher_class):
         """Test processing of empty post list."""
         # Call the method with empty list
@@ -187,8 +187,8 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns 0
         self.assertEqual(result, 0)
 
-    @patch('substack_to_md.SubstackFetcher')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.SubstackFetcher')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_process_posts_no_html(self, mock_converter_class, mock_fetcher_class):
         """Test processing of posts with no HTML content."""
         # Create a post with no HTML content
@@ -203,7 +203,7 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns 0
         self.assertEqual(result, 0)
 
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_process_posts_conversion_failure(self, mock_converter_class):
         """Test processing of posts when conversion fails."""
         # Set up mock to return None for conversion
@@ -222,8 +222,8 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns 0
         self.assertEqual(result, 0)
 
-    @patch('substack_to_md.save_markdown_to_file')
-    @patch('substack_to_md.MarkdownConverter')
+    @patch('src.core.substack_to_md.save_markdown_to_file')
+    @patch('src.core.substack_to_md.MarkdownConverter')
     def test_process_posts_save_failure(self, mock_converter_class, mock_save):
         """Test processing of posts when saving fails."""
         # Set up mocks
@@ -243,7 +243,7 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns 0
         self.assertEqual(result, 0)
 
-    @patch('substack_to_md.parse_arguments')
+    @patch('src.core.substack_to_md.parse_arguments')
     def test_keyboard_interrupt(self, mock_parse_args):
         """Test handling of keyboard interrupt."""
         # Set up mock to raise KeyboardInterrupt
@@ -255,7 +255,7 @@ class TestErrorHandling(unittest.TestCase):
         # Assert that it returns 130 (standard exit code for SIGINT)
         self.assertEqual(result, 130)
 
-    @patch('substack_to_md.parse_arguments')
+    @patch('src.core.substack_to_md.parse_arguments')
     def test_unexpected_exception(self, mock_parse_args):
         """Test handling of unexpected exceptions."""
         # Set up mock to raise an unexpected exception
